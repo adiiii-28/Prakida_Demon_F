@@ -31,11 +31,13 @@ const Gallery = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: idx * 0.1 }}
                         >
-                            <img
-                                src={img.src}
-                                alt={img.alt}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0"
-                            />
+                            <motion.div className="h-full w-full">
+                                <img
+                                    src={img.src}
+                                    alt={img.alt}
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0"
+                                />
+                            </motion.div>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                                 <p className="text-white font-display uppercase tracking-wider text-lg font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                                     {img.alt}

@@ -39,7 +39,10 @@ const Schedule = () => {
                 </div>
 
                 {/* Day Tabs */}
-                <div className="flex justify-center gap-4 mb-12">
+                <div className="relative flex justify-center gap-4 mb-12">
+                    {/* Connecting Line */}
+                    <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/10 -z-10"></div>
+
                     {[
                         { id: 1, label: 'JAN 13', sub: 'Day 1' },
                         { id: 2, label: 'JAN 14', sub: 'Day 2' },
@@ -48,8 +51,8 @@ const Schedule = () => {
                         <button
                             key={day.id}
                             onClick={() => setActiveDay(day.id)}
-                            className={`px-6 py-3 md:px-8 font-display font-bold text-lg tracking-wider transition-all duration-300 border-b-2 group ${activeDay === day.id
-                                ? 'text-white border-prakida-flame bg-white/5'
+                            className={`px-6 py-3 md:px-8 font-display font-bold text-lg tracking-wider transition-all duration-300 border-b-2 group relative z-10 bg-prakida-bg ${activeDay === day.id
+                                ? 'text-white border-prakida-flame'
                                 : 'text-gray-500 border-transparent hover:text-gray-300'
                                 }`}
                         >

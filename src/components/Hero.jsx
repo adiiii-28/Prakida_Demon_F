@@ -1,8 +1,24 @@
-import { motion } from 'framer-motion';
+
 import { useEffect, useState } from 'react';
+
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 
 const Hero = () => {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+    // Mouse parallax effect
+    const handleMouseMove = (e) => {
+        const { clientX, clientY } = e;
+        const moveX = clientX - window.innerWidth / 2;
+        const moveY = clientY - window.innerHeight / 2;
+        setMousePosition({ x: moveX, y: moveY });
+    };
+
+    useEffect(() => {
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
 
     useEffect(() => {
         // Set target date to January 13, 2026
@@ -25,79 +41,137 @@ const Hero = () => {
         return () => clearInterval(interval);
     }, []);
 
-    return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-            {/* Background Elements */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-b from-prakida-bg via-transparent to-prakida-bg z-10"></div>
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-prakida-water/10 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 w-1/2 h-full bg-gradient-to-r from-prakida-flame/10 to-transparent"></div>
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.3
+            }
+        }
+    };
 
-                {/* Animated Particles/Orbs */}
+    const itemVariants = {
+        hidden: { y: 50, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 10
+            }
+        }
+    };
+
+    return (
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 perspective-1000">
+            {/* Dynamic Background */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-gradient-to-b from-prakida-bg via-transparent to-prakida-bg z-10" />
+                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay animate-pulse" />
+
+                {/* Parallax Orbs */}
                 <motion.div
-                    animate={{ x: [0, 50, 0], opacity: [0.3, 0.6, 0.3] }}
-                    transition={{ duration: 10, repeat: Infinity }}
-                    className="absolute top-1/4 right-1/4 w-96 h-96 bg-prakida-water/20 rounded-full blur-[100px]"
-                />
+                    animate={{
+                        x: mousePosition.x * -0.05,
+                        y: mousePosition.y * -0.05,
+                    }}
+                    transition={{ type: "spring", damping: 30, stiffness: 200 }}
+                    className="absolute top-0 right-0 w-full h-full"
+                >
+                    <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-prakida-water/30 rounded-full blur-[120px] mix-blend-screen" />
+                </motion.div>
+
                 <motion.div
-                    animate={{ x: [0, -50, 0], opacity: [0.2, 0.5, 0.2] }}
-                    transition={{ duration: 8, repeat: Infinity, delay: 1 }}
-                    className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-prakida-flame/20 rounded-full blur-[100px]"
-                />
+                    animate={{
+                        x: mousePosition.x * 0.05,
+                        y: mousePosition.y * 0.05,
+                    }}
+                    transition={{ type: "spring", damping: 30, stiffness: 200 }}
+                    className="absolute bottom-0 left-0 w-full h-full"
+                >
+                    <div className="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-prakida-flame/20 rounded-full blur-[150px] mix-blend-screen" />
+                </motion.div>
             </div>
 
             <div className="container mx-auto px-6 relative z-10 text-center">
                 <motion.div
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
                 >
-                    <h2 className="text-prakida-flame font-bold tracking-[0.3em] mb-4 text-sm md:text-base border-b border-prakida-flame/30 inline-block pb-2">
-                        INTER-COLLEGE SPORTS FEST 2026
-                    </h2>
-                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-display font-black text-white mb-6 tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-500">
-                        PRAKIDA
-                    </h1>
-                    <p className="text-gray-400 text-lg md:text-2xl max-w-2xl mx-auto mb-10 font-light tracking-wide">
-                        Unleash Your Inner <span className="text-prakida-water font-semibold">Hashira</span> on the Field.
-                        <br />
-                        Forged in Sportsmanship. Inspired by Legends.
-                    </p>
+                    <motion.div variants={itemVariants} className="mb-4">
+                        <span className="px-4 py-1 border border-prakida-flame/50 text-prakida-flame text-xs md:text-sm font-bold tracking-[0.3em] uppercase backdrop-blur-sm">
+                            Inter-College Sports Fest 2026
+                        </span>
+                    </motion.div>
 
-                    <div className="flex flex-col md:flex-row gap-6 justify-center items-center mb-16">
+                    <motion.h1
+                        variants={itemVariants}
+                        className="text-7xl md:text-9xl lg:text-[12rem] font-display font-black text-white mb-2 tracking-tighter leading-[0.8] relative z-20 mix-blend-overlay opacity-90"
+                        style={{ textShadow: '0 0 40px rgba(255,255,255,0.1)' }}
+                    >
+                        PRAKIDA
+                    </motion.h1>
+
+                    <motion.p
+                        variants={itemVariants}
+                        className="text-gray-300 text-lg md:text-2xl max-w-3xl mx-auto mb-12 font-light tracking-wide leading-relaxed"
+                    >
+                        The arena awaits. Unleash your inner <span className="text-prakida-water font-bold drop-shadow-glow">Hashira</span>.<br />
+                        <span className="text-white/60 text-base">Victory is not given. It is taken.</span>
+                    </motion.p>
+
+                    <motion.div variants={itemVariants} className="flex flex-col md:flex-row gap-6 justify-center items-center mb-20">
                         <a
                             href="#register"
-                            className="group relative px-8 py-4 bg-prakida-flame text-white font-bold text-lg tracking-wider overflow-hidden clip-path-slant"
+                            className="group relative px-10 py-5 bg-prakida-flame text-white font-bold text-xl tracking-widest overflow-hidden clip-path-slant shadow-lg shadow-prakida-flame/50 hover:shadow-prakida-flame/80 transition-all"
                         >
-                            <span className="relative z-10">REGISTER NOW</span>
-                            <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+                            <span className="relative z-10 group-hover:tracking-[0.2em] transition-all duration-300">ENTER ARENA</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
                         </a>
                         <a
                             href="#schedule"
-                            className="group px-8 py-4 border border-white/30 text-white font-bold text-lg tracking-wider hover:bg-white/5 transition-colors"
+                            className="group px-8 py-5 border border-white/20 text-white font-bold text-lg tracking-widest hover:bg-white/5 transition-all hover:border-white/50 backdrop-blur-sm"
                         >
                             VIEW SCHEDULE
                         </a>
-                    </div>
+                    </motion.div>
 
                     {/* Countdown */}
-                    <div className="grid grid-cols-4 gap-4 md:gap-8 max-w-3xl mx-auto border-t border-white/10 pt-8">
+                    <motion.div
+                        variants={itemVariants}
+                        className="grid grid-cols-4 gap-4 md:gap-12 max-w-4xl mx-auto border-t border-white/10 pt-10"
+                    >
                         {[
                             { label: 'DAYS', value: timeLeft.days },
                             { label: 'HOURS', value: timeLeft.hours },
                             { label: 'MINUTES', value: timeLeft.minutes },
                             { label: 'SECONDS', value: timeLeft.seconds }
                         ].map((item, idx) => (
-                            <div key={idx} className="text-center">
-                                <div className="text-3xl md:text-5xl font-display font-bold text-white mb-2">
+                            <div key={idx} className="text-center group cursor-default">
+                                <div className="text-4xl md:text-6xl font-display font-black text-white mb-2 group-hover:text-prakida-flame transition-colors duration-300">
                                     {String(item.value).padStart(2, '0')}
                                 </div>
-                                <div className="text-xs md:text-sm text-gray-500 tracking-widest">{item.label}</div>
+                                <div className="text-xs md:text-sm text-gray-500 tracking-[0.3em] font-medium group-hover:text-white transition-colors duration-300">{item.label}</div>
                             </div>
                         ))}
-                    </div>
+                    </motion.div>
                 </motion.div>
             </div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, y: [0, 10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 2 }}
+                className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white/30 text-sm tracking-widest"
+            >
+                SCROLL TO EXPLORE
+            </motion.div>
         </section>
     );
 };

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Shield, Users, Trophy, Zap } from 'lucide-react';
 
 const About = () => {
@@ -12,9 +12,12 @@ const About = () => {
     return (
         <section id="about" className="py-24 bg-prakida-bg relative overflow-hidden">
             {/* Decorative Background Text */}
-            <div className="absolute top-10 left-0 text-[10rem] font-black text-white/5 opacity-50 select-none pointer-events-none whitespace-nowrap z-0">
+            <motion.div
+                style={{ x: useTransform(useScroll().scrollYProgress, [0, 1], [0, -200]) }}
+                className="absolute top-10 left-0 text-[10rem] md:text-[15rem] font-black text-white/5 opacity-50 select-none pointer-events-none whitespace-nowrap z-0"
+            >
                 P R A K I D A
-            </div>
+            </motion.div>
 
             <div className="container mx-auto px-6 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">

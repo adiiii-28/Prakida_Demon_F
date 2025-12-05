@@ -146,6 +146,16 @@ const TiltCard = ({ item, index }) => {
             {/* Background Gradient */}
             <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
 
+            {/* Glare Effect */}
+            <motion.div
+                style={{
+                    opacity: useTransform(x, [-0.5, 0, 0.5], [0, 0.3, 0]),
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%)',
+                    transform: useTransform(x, range => `translateX(${range * 100}%)`)
+                }}
+                className="absolute inset-0 w-full h-full z-20 pointer-events-none"
+            />
+
             {/* Kanji Background */}
             <div
                 className="absolute -bottom-10 -right-10 text-9xl font-black text-white/5 group-hover:text-white/10 transition-colors duration-500 select-none font-display"

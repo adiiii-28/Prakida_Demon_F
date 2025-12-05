@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 
 const Registration = () => {
+    const form = useRef();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [status, setStatus] = useState({ type: '', message: '' });
+
     const [formData, setFormData] = useState({
         name: '',
         college: '',
@@ -16,24 +21,55 @@ const Registration = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        setStatus({ type: '', message: '' });
 
-        // Save to LocalStorage
-        const existingRegistrations = JSON.parse(localStorage.getItem('prakida_registrations') || '[]');
-        existingRegistrations.push({ ...formData, timestamp: new Date().toISOString() });
-        localStorage.setItem('prakida_registrations', JSON.stringify(existingRegistrations));
+        // EmailJS Configuration
+        const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+        const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+        const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-        // Feedback
-        alert(`Request Sent! The ${formData.sport} corps awaits you, ${formData.name}.`);
+        if (!serviceId || !templateId || !publicKey) {
+            // Fallback for demo/offline mode if keys aren't set
+            console.warn("EmailJS keys are missing. Falling back to LocalStorage for demo purposes.");
+            const existingRegistrations = JSON.parse(localStorage.getItem('prakida_registrations') || '[]');
+            existingRegistrations.push({ ...formData, timestamp: new Date().toISOString() });
+            localStorage.setItem('prakida_registrations', JSON.stringify(existingRegistrations));
 
-        // Reset Form
-        setFormData({
-            name: '',
-            college: '',
-            email: '',
-            phone: '',
-            sport: 'Cricket',
-            role: 'Player'
-        });
+            setTimeout(() => {
+                setIsSubmitting(false);
+                setStatus({ type: 'success', message: `Request Sent (Local Mode)! The ${formData.sport} corps awaits you, ${formData.name}.` });
+                setFormData({
+                    name: '',
+                    college: '',
+                    email: '',
+                    phone: '',
+                    sport: 'Cricket',
+                    role: 'Player'
+                });
+            }, 1000);
+            return;
+        }
+
+        emailjs.sendForm(serviceId, templateId, form.current, publicKey)
+            .then((result) => {
+                console.log(result.text);
+                setStatus({ type: 'success', message: `Request Sent! Check your email, ${formData.name}.` });
+                setFormData({
+                    name: '',
+                    college: '',
+                    email: '',
+                    phone: '',
+                    sport: 'Cricket',
+                    role: 'Player'
+                });
+            }, (error) => {
+                console.log(error.text);
+                setStatus({ type: 'error', message: 'Failed to send registration. Please try again or contact support.' });
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
     };
 
     return (
@@ -49,97 +85,92 @@ const Registration = () => {
                             <p className="text-gray-400">Slots are limited. Total Concentration Breathing recommended for quick sign-ups.</p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-500 tracking-wider">FULL NAME</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    className="w-full bg-white/5 border border-white/10 rounded-sm p-4 text-white focus:outline-none focus:border-prakida-water transition-colors"
-                                    placeholder="Aditya Kumar"
-                                    required
-                                />
+                        {status.message && (
+                            <div className={`mb-6 p-4 rounded border ${status.type === 'success' ? 'bg-green-900/20 border-green-500/50 text-green-400' : 'bg-red-900/20 border-red-500/50 text-red-400'}`}>
+                                {status.message}
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-500 tracking-wider">COLLEGE / INSTITUTION</label>
-                                <input
-                                    type="text"
-                                    name="college"
-                                    value={formData.college}
-                                    onChange={handleChange}
-                                    className="w-full bg-white/5 border border-white/10 rounded-sm p-4 text-white focus:outline-none focus:border-prakida-water transition-colors"
-                                    placeholder="IIT Delhi"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-500 tracking-wider">EMAIL ADDRESS</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    className="w-full bg-white/5 border border-white/10 rounded-sm p-4 text-white focus:outline-none focus:border-prakida-water transition-colors"
-                                    placeholder="aditya@example.com"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-500 tracking-wider">PHONE NUMBER</label>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    className="w-full bg-white/5 border border-white/10 rounded-sm p-4 text-white focus:outline-none focus:border-prakida-water transition-colors"
-                                    placeholder="+91 98765 43210"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-500 tracking-wider">SELECT SPORT</label>
-                                <select
-                                    name="sport"
-                                    value={formData.sport}
-                                    onChange={handleChange}
-                                    className="w-full bg-white/5 border border-white/10 rounded-sm p-4 text-white focus:outline-none focus:border-prakida-water transition-colors appearance-none"
-                                >
-                                    <option className="bg-gray-900">Cricket (Water)</option>
-                                    <option className="bg-gray-900">Volleyball (Wind)</option>
-                                    <option className="bg-gray-900">Badminton (Insect)</option>
-                                    <option className="bg-gray-900">Basketball (Sound)</option>
-                                    <option className="bg-gray-900">Football (Flame)</option>
-                                    <option className="bg-gray-900">Chess (Serpent)</option>
-                                    <option className="bg-gray-900">Carrom (Mist)</option>
-                                    <option className="bg-gray-900">Lawn Tennis (Love)</option>
-                                    <option className="bg-gray-900">Table Tennis (Thunder)</option>
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-500 tracking-wider">ROLE</label>
-                                <select
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleChange}
-                                    className="w-full bg-white/5 border border-white/10 rounded-sm p-4 text-white focus:outline-none focus:border-prakida-water transition-colors appearance-none"
-                                >
-                                    <option className="bg-gray-900">Player</option>
-                                    <option className="bg-gray-900">Captain</option>
-                                    <option className="bg-gray-900">Manager</option>
-                                </select>
-                            </div>
+                        )}
 
-                            <div className="md:col-span-2 mt-6">
-                                <button
-                                    type="submit"
-                                    className="w-full bg-gradient-to-r from-prakida-flame to-prakida-flameDark text-white font-bold py-4 tracking-widest hover:brightness-110 transition-all transform active:scale-95"
-                                >
-                                    SUBMIT REGISTRATION
-                                </button>
-                            </div>
-                        </form>
+                        <div className="relative p-8 border border-white/10 bg-white/5 overflow-hidden">
+                            {/* Decorative HUD Elements */}
+                            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-prakida-flame"></div>
+                            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-prakida-flame"></div>
+                            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-prakida-flame"></div>
+                            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-prakida-flame"></div>
+
+                            <form ref={form} onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                                {['name', 'college', 'email', 'phone'].map((field) => (
+                                    <div key={field} className="space-y-2 group">
+                                        <label className="text-xs font-bold text-gray-500 tracking-[0.2em] uppercase">{field}</label>
+                                        <div className="relative">
+                                            <input
+                                                type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+                                                name={field}
+                                                value={formData[field]}
+                                                onChange={handleChange}
+                                                className="w-full bg-black/50 border border-white/10 p-4 text-white focus:outline-none focus:border-prakida-water transition-all duration-300 placeholder:text-gray-700 font-mono"
+                                                placeholder={`ENTER ${field.toUpperCase()}...`}
+                                                required
+                                            />
+                                            {/* Input Focus Brackets */}
+                                            <div className="absolute inset-0 border border-transparent group-hover:border-white/20 pointer-events-none transition-colors duration-300"></div>
+                                            <div className="absolute bottom-0 left-0 w-0 h-[1px] bg-prakida-water group-focus-within:w-full transition-all duration-500"></div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <div className="space-y-2 group">
+                                    <label className="text-xs font-bold text-gray-500 tracking-[0.2em] uppercase">SELECT SPORT</label>
+                                    <div className="relative">
+                                        <select
+                                            name="sport"
+                                            value={formData.sport}
+                                            onChange={handleChange}
+                                            className="w-full bg-black/50 border border-white/10 p-4 text-white focus:outline-none focus:border-prakida-water transition-all duration-300 appearance-none font-mono"
+                                        >
+                                            <option className="bg-gray-900">Cricket (Water)</option>
+                                            <option className="bg-gray-900">Volleyball (Wind)</option>
+                                            <option className="bg-gray-900">Badminton (Insect)</option>
+                                            <option className="bg-gray-900">Basketball (Sound)</option>
+                                            <option className="bg-gray-900">Football (Flame)</option>
+                                            <option className="bg-gray-900">Chess (Serpent)</option>
+                                            <option className="bg-gray-900">Carrom (Mist)</option>
+                                            <option className="bg-gray-900">Lawn Tennis (Love)</option>
+                                            <option className="bg-gray-900">Table Tennis (Thunder)</option>
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-prakida-flame font-bold">▼</div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 group">
+                                    <label className="text-xs font-bold text-gray-500 tracking-[0.2em] uppercase">ROLE</label>
+                                    <div className="relative">
+                                        <select
+                                            name="role"
+                                            value={formData.role}
+                                            onChange={handleChange}
+                                            className="w-full bg-black/50 border border-white/10 p-4 text-white focus:outline-none focus:border-prakida-water transition-all duration-300 appearance-none font-mono"
+                                        >
+                                            <option className="bg-gray-900">Player</option>
+                                            <option className="bg-gray-900">Captain</option>
+                                            <option className="bg-gray-900">Manager</option>
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-prakida-flame font-bold">▼</div>
+                                    </div>
+                                </div>
+
+                                <div className="md:col-span-2 mt-6">
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="relative w-full overflow-hidden group bg-prakida-flame text-white font-bold py-5 tracking-[0.3em] transition-all hover:bg-prakida-flameDark disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <span className="relative z-10">{isSubmitting ? 'INITIALIZING...' : 'INITIATE REGISTRATION'}</span>
+                                        <div className="absolute inset-0 bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
                     {/* Rules Side Panel */}
@@ -168,7 +199,7 @@ const Registration = () => {
                             </ul>
                             <div className="mt-8 pt-6 border-t border-white/10 text-center">
                                 <p className="text-sm text-gray-500">Need help?</p>
-                                <a href="mailto:support@prakida.com" className="text-prakida-water hover:text-white transition-colors">support@prakida.com</a>
+                                <a href="mailto:prakida@bitmesra.ac.in" className="text-prakida-water hover:text-white transition-colors">prakida@bitmesra.ac.in</a>
                             </div>
                         </div>
                     </div>
@@ -180,3 +211,4 @@ const Registration = () => {
 };
 
 export default Registration;
+
