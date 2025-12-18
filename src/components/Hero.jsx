@@ -121,7 +121,7 @@ const Hero = () => {
                     animate="visible"
                 >
                     <motion.div variants={itemVariants} className="mb-4">
-                        <span className="px-4 py-1 border border-prakida-flame/50 text-prakida-flame text-xs md:text-sm font-bold tracking-[0.3em] uppercase backdrop-blur-sm">
+                        <span className="px-4 py-1 border border-prakida-flame/50 text-prakida-flame text-[10px] md:text-sm font-bold tracking-widest md:tracking-[0.3em] uppercase backdrop-blur-sm inline-block">
                             Inter-College Sports Fest 2026
                         </span>
                     </motion.div>
