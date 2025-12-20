@@ -36,9 +36,9 @@ const Registration = () => {
         if (!serviceId || !templateId || !publicKey) {
             // Fallback for demo/offline mode if keys aren't set
             console.warn("EmailJS keys are missing. Falling back to LocalStorage for demo purposes.");
-            const existingRegistrations = JSON.parse(localStorage.getItem('prakida_registrations') || '[]');
+            const existingRegistrations = JSON.parse(localStorage.getItem('prakrida_registrations') || '[]');
             existingRegistrations.push({ ...formData, timestamp: new Date().toISOString() });
-            localStorage.setItem('prakida_registrations', JSON.stringify(existingRegistrations));
+            localStorage.setItem('prakrida_registrations', JSON.stringify(existingRegistrations));
 
             setTimeout(() => {
                 setIsSubmitting(false);

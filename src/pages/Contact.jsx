@@ -19,8 +19,7 @@ const Contact = () => {
                         </div>
                         <div>
                             <h3 className="text-xl font-semibold text-white">Email Us</h3>
-                            <p className="text-gray-400">contact@prakida.com</p>
-                            <p className="text-gray-400">sponsors@prakida.com</p>
+                            <p className="text-gray-400">prakrida@bitmesra.ac.in</p>
                         </div>
                     </div>
 
@@ -30,7 +29,7 @@ const Contact = () => {
                         </div>
                         <div>
                             <h3 className="text-xl font-semibold text-white">Call Us</h3>
-                            <p className="text-gray-400">+91 98765 43210</p>
+                            <p className="text-gray-400">+91 79035 55032</p>
                         </div>
                     </div>
 
@@ -41,9 +40,9 @@ const Contact = () => {
                         <div>
                             <h3 className="text-xl font-semibold text-white">Headquarters</h3>
                             <p className="text-gray-400">
-                                Demon Slayer Corps HQ<br />
-                                Mount Fujikasane<br />
-                                Japan
+                                BIT Patna,<br />
+                                Bihar,<br />
+                                India.
                             </p>
                         </div>
                     </div>

@@ -15,7 +15,7 @@ const Merchandise = () => {
                 >
                     <h2 className="text-2xl font-bold mb-4 text-prakida-flame">Coming Soon</h2>
                     <p className="text-gray-300">
-                        Official Prakida Demon Slayer merchandise is currently being forged by the swordsmiths.
+                        Official Prakrida Demon Slayer merchandise is currently being forged by the swordsmiths.
                         <br />
                         Check back later for exclusive hoodies, katanas, and more.
                     </p>

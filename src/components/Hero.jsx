@@ -135,7 +135,7 @@ const Hero = () => {
                                     className="text-5xl md:text-9xl lg:text-[12rem] font-display font-black text-white tracking-tighter leading-[0.8]"
                                     style={{ textShadow: '0 0 40px rgba(255,255,255,0.1)', fontFamily: "'Nosifer', cursive" }}
                                 >
-                                    PRAKIDA
+                                    PRAKRIDA
                                 </h1>
                             </motion.div>
                         </ParallaxElement>

@@ -7,7 +7,7 @@ const Footer = () => {
             <div className="container mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-10 mb-16">
                     <div className="text-center md:text-left">
-                        <a href="#" className="text-3xl font-display font-bold text-white mb-4 block">PRAKIDA</a>
+                        <a href="#" className="text-3xl font-display font-bold text-white mb-4 block">PRAKRIDA</a>
                         <p className="text-gray-500 max-w-sm mb-6">
                             Forged in Sportsmanship, Inspired by Hashira. The ultimate inter-college sports festival.
                         </p>
@@ -29,13 +29,13 @@ const Footer = () => {
                         </div>
                         <div className="flex items-center gap-3">
                             <SiGmail size={20} />
-                            <a href="mailto:prakida@bitmesra.ac.in" className="hover:text-gray-400 transition-colors">prakida@bitmesra.ac.in</a>
+                            <a href="mailto:prakida@bitmesra.ac.in" className="hover:text-gray-400 transition-colors">prakrida@bitmesra.ac.in</a>
                         </div>
                     </div>
                 </div>
 
                 <div className="border-t border-white/5 pt-8 flex justify-center text-center text-sm text-gray-600">
-                    <div>© 2026 PRAKIDA Sports Fest. All rights reserved.</div>
+                    <div>© 2026 PRAKRIDA Sports Fest. All rights reserved.</div>
                 </div>
             </div>
         </footer>
