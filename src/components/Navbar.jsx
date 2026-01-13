@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import GlitchLink from './ui/GlitchLink';
 import logo from '../assets/prakida-logo.png';
 import { buttonHover, buttonTap } from '../utils/motion';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
+    const { user, signOut } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
@@ -54,14 +56,32 @@ const Navbar = () => {
                             kanji={link.kanji}
                         />
                     ))}
-                    <motion.div whileHover={buttonHover} whileTap={buttonTap}>
-                        <Link
-                            to="/register" // Changed to Register page for 'Join Now'
-                            className="block px-6 py-2 bg-transparent border border-prakida-flame text-prakida-flame hover:bg-prakida-flame hover:text-white font-bold transition-all duration-300 rounded-sm skew-x-[-12deg] hover:skew-x-0 hover:shadow-[0_0_15px_rgba(244,140,6,0.5)]"
-                        >
-                            <span className="block skew-x-[12deg] hover:skew-x-0">JOIN NOW</span>
-                        </Link>
-                    </motion.div>
+
+                    {user ? (
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 text-sm text-gray-400 font-mono tracking-widest uppercase border-r border-gray-700 pr-4">
+                                <User size={14} className="text-prakida-flame" />
+                                <span className="hidden xl:block">{user.user_metadata?.full_name?.split(' ')[0] || 'SLAYER'}</span>
+                            </div>
+                            <motion.button
+                                whileHover={buttonHover}
+                                whileTap={buttonTap}
+                                onClick={signOut}
+                                className="flex items-center gap-2 px-6 py-2 bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white font-bold transition-all duration-300 rounded-sm skew-x-[-12deg] hover:skew-x-0 hover:shadow-[0_0_15px_rgba(239,68,68,0.5)]"
+                            >
+                                <span className="block skew-x-[12deg] hover:skew-x-0 flex items-center gap-2 text-sm"><LogOut size={16} /> LOGOUT</span>
+                            </motion.button>
+                        </div>
+                    ) : (
+                        <motion.div whileHover={buttonHover} whileTap={buttonTap}>
+                            <Link
+                                to="/login"
+                                className="block px-6 py-2 bg-transparent border border-prakida-flame text-prakida-flame hover:bg-prakida-flame hover:text-white font-bold transition-all duration-300 rounded-sm skew-x-[-12deg] hover:skew-x-0 hover:shadow-[0_0_15px_rgba(244,140,6,0.5)]"
+                            >
+                                <span className="block skew-x-[12deg] hover:skew-x-0">LOGIN</span>
+                            </Link>
+                        </motion.div>
+                    )}
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -92,12 +112,21 @@ const Navbar = () => {
                                     {link.name}
                                 </Link>
                             ))}
-                            <Link
-                                to="/register"
-                                className="mt-4 px-6 py-2 md:px-8 md:py-3 bg-prakida-flame text-white font-bold tracking-wider"
-                            >
-                                JOIN NOW
-                            </Link>
+                            {user ? (
+                                <button
+                                    onClick={() => { signOut(); setIsOpen(false); }}
+                                    className="mt-4 px-6 py-2 md:px-8 md:py-3 bg-red-900/50 border border-red-500 text-red-400 font-bold tracking-wider w-full text-center"
+                                >
+                                    LOGOUT
+                                </button>
+                            ) : (
+                                <Link
+                                    to="/login"
+                                    className="mt-4 px-6 py-2 md:px-8 md:py-3 bg-prakida-flame text-white font-bold tracking-wider"
+                                >
+                                    LOGIN
+                                </Link>
+                            )}
                         </div>
                     </motion.div>
                 )}

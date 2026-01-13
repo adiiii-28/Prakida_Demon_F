@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import NoiseOverlay from './components/ui/NoiseOverlay';
@@ -18,6 +19,8 @@ const Sports = lazy(() => import('./pages/Sports'));
 const Contact = lazy(() => import('./pages/Contact'));
 const RegisterSection = lazy(() => import('./pages/RegisterSection'));
 const Alumni = lazy(() => import('./pages/Alumni'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
 
 // Separate component to use hook inside Router
 const AnimatedRoutes = () => {
@@ -34,6 +37,8 @@ const AnimatedRoutes = () => {
           <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
           <Route path="/register" element={<PageTransition><RegisterSection /></PageTransition>} />
           <Route path="/alumni" element={<PageTransition><Alumni /></PageTransition>} />
+          <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+          <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
         </Routes>
       </Suspense>
     </AnimatePresence>
@@ -42,18 +47,20 @@ const AnimatedRoutes = () => {
 
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <ScrollPath />
-      <div className="bg-prakida-bg min-h-screen text-white overflow-x-hidden selection:bg-prakida-flame selection:text-white">
-        <NoiseOverlay />
-        <Navbar />
-        <main>
-          <AnimatedRoutes />
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <ScrollToTop />
+        <ScrollPath />
+        <div className="bg-prakida-bg min-h-screen text-white overflow-x-hidden selection:bg-prakida-flame selection:text-white">
+          <NoiseOverlay />
+          <Navbar />
+          <main>
+            <AnimatedRoutes />
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
