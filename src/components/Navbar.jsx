@@ -116,7 +116,7 @@ const Navbar = () => {
                         animate={{ clipPath: "circle(150% at 100% 0)" }}
                         exit={{ clipPath: "circle(0% at 100% 0)" }}
                         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                        className="fixed inset-0 z-[60] bg-prakida-bg flex flex-col justify-between p-8 md:hidden overflow-hidden"
+                        className="fixed inset-0 z-[60] bg-prakida-bg flex flex-col justify-between p-8 md:hidden overflow-y-auto max-h-screen"
                     >
                         {/* Background Deco */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-prakida-flame/10 rounded-full blur-[100px] pointer-events-none" />
