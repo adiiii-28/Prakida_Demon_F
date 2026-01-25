@@ -81,17 +81,12 @@ const Contact = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 max-w-6xl mx-auto">
         <div className="bg-white/5 border border-white/10 p-6 backdrop-blur-sm hover:bg-white/10 transition-colors group text-center">
-          <div className="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4 overflow-hidden border-2 border-prakida-flame/20 group-hover:border-prakida-flame transition-colors">
-            { }
-            <div className="w-full h-full flex items-center justify-center text-gray-500">
-              <svg
-                className="w-12 h-12"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
+          <div className="w-32 h-32 rounded-full bg-white/10 mx-auto mb-4 overflow-hidden border-2 border-prakida-flame/20 group-hover:border-prakida-flame transition-colors">
+            <img
+              src="/Rohit.jpeg"
+              alt="Rohit Kumar"
+              className="w-full h-full object-cover object-top"
+            />
           </div>
           <h3 className="text-prakida-flame font-display tracking-wider text-xl mb-2">
             CONVENER
@@ -105,17 +100,12 @@ const Contact = () => {
           </a>
         </div>
         <div className="bg-white/5 border border-white/10 p-6 backdrop-blur-sm hover:bg-white/10 transition-colors group text-center">
-          <div className="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4 overflow-hidden border-2 border-prakida-flame/20 group-hover:border-prakida-flame transition-colors">
-            { }
-            <div className="w-full h-full flex items-center justify-center text-gray-500">
-              <svg
-                className="w-12 h-12"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
+          <div className="w-32 h-32 rounded-full bg-white/10 mx-auto mb-4 overflow-hidden border-2 border-prakida-flame/20 group-hover:border-prakida-flame transition-colors">
+            <img
+              src="/Anurag.jpeg"
+              alt="Anurag Anand"
+              className="w-full h-full object-cover object-top"
+            />
           </div>
           <h3 className="text-prakida-flame font-display tracking-wider text-xl mb-2">
             EVENT HEAD
@@ -129,17 +119,12 @@ const Contact = () => {
           </a>
         </div>
         <div className="bg-white/5 border border-white/10 p-6 backdrop-blur-sm hover:bg-white/10 transition-colors group text-center">
-          <div className="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4 overflow-hidden border-2 border-prakida-flame/20 group-hover:border-prakida-flame transition-colors">
-            { }
-            <div className="w-full h-full flex items-center justify-center text-gray-500">
-              <svg
-                className="w-12 h-12"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
+          <div className="w-32 h-32 rounded-full bg-white/10 mx-auto mb-4 overflow-hidden border-2 border-prakida-flame/20 group-hover:border-prakida-flame transition-colors">
+            <img
+              src="/Udit.jpeg"
+              alt="Udit Ojha"
+              className="w-full h-full object-cover object-top"
+            />
           </div>
           <h3 className="text-prakida-flame font-display tracking-wider text-xl mb-2">
             SOCIAL MEDIA HEAD
