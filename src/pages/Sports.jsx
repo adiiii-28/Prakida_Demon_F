@@ -10,9 +10,12 @@ import {
   Activity,
   Zap,
   Maximize2,
+  Gamepad2,
+  Swords,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import SportDetailsModal from "../components/ui/SportDetailsModal";
+import { SPORTS_CONFIG } from "../lib/sportsConfig";
 
 // Import images
 import img1 from "../assets/gallery-1.webp";
@@ -31,6 +34,7 @@ const SPORTS_DATA = [
     id: "cricket",
     title: "CRICKET",
     icon: Target,
+    configSport: "Cricket",
     players: "11 vs 11",
     category: "Men Only",
     desc: "The gentleman's game, played with warrior spirit. Determine supremacy on the 22 yards.",
@@ -43,6 +47,7 @@ const SPORTS_DATA = [
     id: "football",
     title: "FOOTBALL",
     icon: Activity,
+    configSport: "Football",
     players: "11 vs 11",
     category: "Men Only",
     desc: "Passion, precision, and power. 90 minutes of pure adrenaline on the field.",
@@ -55,6 +60,7 @@ const SPORTS_DATA = [
     id: "basketball",
     title: "BASKETBALL",
     icon: Zap,
+    configSport: "Basketball",
     players: "5 vs 5",
     category: "Men & Women",
     desc: "Speed, skill, and gravity-defying action on the court. Dominate the paint.",
@@ -67,6 +73,7 @@ const SPORTS_DATA = [
     id: "badminton",
     title: "BADMINTON",
     icon: Activity,
+    configSport: "Badminton",
     players: "Singles / Doubles",
     category: "Men & Women",
     desc: "Agility and reflexes pushed to the limit. Smash your way to victory.",
@@ -79,6 +86,7 @@ const SPORTS_DATA = [
     id: "volleyball",
     title: "VOLLEYBALL",
     icon: Users,
+    configSport: "Volleyball",
     players: "6 vs 6",
     category: "Men & Women",
     desc: "Teamwork makes the dream work. Spike, block, and defend your glory.",
@@ -91,6 +99,7 @@ const SPORTS_DATA = [
     id: "chess",
     title: "CHESS",
     icon: Trophy,
+    configSport: "Chess",
     players: "1 vs 1",
     category: "Open",
     desc: "The ultimate battle of minds. Checkmate your opponent in silence.",
@@ -99,7 +108,130 @@ const SPORTS_DATA = [
     rulebook: "#",
     images: [img6, img7, img8],
   },
+  {
+    id: "lawn-tennis",
+    title: "LAWN TENNIS",
+    icon: Swords,
+    configSport: "Lawn Tennis",
+    players: "Doubles / Team Entry",
+    category: "Men & Women",
+    desc: "Precision, footwork, and killer instincts. Own the baseline.",
+    detailedDesc:
+      "Lawn Tennis at Prakida is a test of composure under pressure. Lightning serves, ruthless volleys, and long rallies decide who earns the right to lift the trophy.",
+    color: "from-lime-600 to-green-900",
+    rulebook: "#",
+    images: [img9, img10, img1],
+  },
+  {
+    id: "table-tennis",
+    title: "TABLE TENNIS",
+    icon: Activity,
+    configSport: "Table Tennis",
+    players: "Team / Singles / Mixed",
+    category: "Mixed",
+    desc: "Blink and you’ll miss it. Speed, spin, and control on the table.",
+    detailedDesc:
+      "From team battles to singles duels and mixed doubles, Table Tennis is pure reflex warfare. Spin-heavy serves and razor-sharp counters decide every point.",
+    color: "from-cyan-600 to-sky-900",
+    rulebook: "#",
+    images: [img2, img3, img4],
+  },
+  {
+    id: "carrom",
+    title: "CARROM",
+    icon: Target,
+    configSport: "Carrom",
+    players: "Team / Mixed Doubles",
+    category: "Men / Women / Mixed",
+    desc: "Calm hands, sharp angles, and perfect strikes. Pocket to prevail.",
+    detailedDesc:
+      "Carrom at Prakida blends finesse with clutch decision-making. A single mistake can flip the board—keep your aim steady and finish with style.",
+    color: "from-rose-600 to-pink-900",
+    rulebook: "#",
+    images: [img5, img6, img7],
+  },
 ];
+
+const getPlayersRange = (sportKey, categoryId) => {
+  const config = SPORTS_CONFIG[sportKey];
+  const category = config?.categories?.find((c) => c.id === categoryId);
+  if (!category) return "";
+  if (category.minPlayers === category.maxPlayers) return `${category.minPlayers} Players`;
+  return `${category.minPlayers}-${category.maxPlayers} Players`;
+};
+
+const ESPORTS_DATA = [
+  {
+    id: "bgmi",
+    title: "BGMI",
+    icon: Gamepad2,
+    configSport: "E-Sports",
+    focusCategoryId: "bgmi",
+    players: getPlayersRange("E-Sports", "bgmi"),
+    category: "E-Sports",
+    desc: "Squad tactics, rotations, and clutch fights. Rule the drop zone.",
+    detailedDesc:
+      "BGMI at Prakrida is full-throttle squad warfare. Clean comms, smart rotations, and disciplined fights decide who survives the bracket.",
+    color: "from-fuchsia-700 to-violet-950",
+    rulebook: "#",
+    images: [img8, img9, img10],
+  },
+  {
+    id: "valorant",
+    title: "VALORANT",
+    icon: Gamepad2,
+    configSport: "E-Sports",
+    focusCategoryId: "valorant",
+    players: getPlayersRange("E-Sports", "valorant"),
+    category: "E-Sports",
+    desc: "Aim, utility, and teamwork. Take the site, win the round.",
+    detailedDesc:
+      "VALORANT demands coordination and composure. Execute strategies, trade kills, and close rounds under pressure to claim victory.",
+    color: "from-fuchsia-700 to-violet-950",
+    rulebook: "#",
+    images: [img9, img10, img1],
+  },
+  {
+    id: "free-fire",
+    title: "FREE FIRE",
+    icon: Gamepad2,
+    configSport: "E-Sports",
+    focusCategoryId: "free_fire",
+    players: getPlayersRange("E-Sports", "free_fire"),
+    category: "E-Sports",
+    desc: "Fast fights, sharp movement, and clean finishes. Outlast everyone.",
+    detailedDesc:
+      "FREE FIRE is about tempo and decision-making. Choose your fights, manage resources, and finish strong to top the leaderboard.",
+    color: "from-fuchsia-700 to-violet-950",
+    rulebook: "#",
+    images: [img10, img1, img2],
+  },
+];
+
+const getCategoryLabelForSport = (sport) => {
+  const configKey = sport?.configSport;
+  const config = configKey ? SPORTS_CONFIG[configKey] : null;
+  const categoryIds = config?.categories?.map((c) => c.id) || [];
+
+  if (configKey === "E-Sports") return "BGMI / Valorant / Free Fire";
+
+  if (categoryIds.includes("men") && categoryIds.includes("women")) {
+    return "Men & Women";
+  }
+
+  if (categoryIds.includes("men_team") && categoryIds.includes("women_team")) {
+    return categoryIds.includes("mixed_double")
+      ? "Men / Women / Mixed"
+      : "Men & Women";
+  }
+
+  if (categoryIds.includes("mixed_double")) return "Mixed";
+
+  if (categoryIds.includes("men")) return "Men Only";
+  if (categoryIds.includes("women")) return "Women Only";
+
+  return sport?.category || "";
+};
 
 const Sports = () => {
   const [selectedSport, setSelectedSport] = useState(null);
@@ -162,7 +294,7 @@ const Sports = () => {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <span className="text-[10px] font-mono text-gray-500 tracking-[0.2em] uppercase">
-                        {sport.category}
+                        {getCategoryLabelForSport(sport)}
                       </span>
                       <Maximize2 className="text-gray-600 group-hover:text-prakida-flame transition-colors" size={16} />
                     </div>
@@ -203,6 +335,86 @@ const Sports = () => {
             );
           })}
         </motion.div>
+
+        {/* E-Sports Section */}
+        <div className="mt-16">
+          <div className="text-center mb-10">
+            <div className="inline-block px-4 py-1 border border-prakida-flame/30 rounded-full mb-4">
+              <span className="text-prakida-flame text-xs font-mono tracking-widest uppercase">E-Sports Arena</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-black text-white tracking-tighter uppercase italic">
+              E-SPORTS
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto font-mono text-xs md:text-sm leading-relaxed mt-3">
+              Choose your game. Each title has its own Event ID.
+            </p>
+          </div>
+
+          <motion.div
+            variants={gridStagger}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {ESPORTS_DATA.map((game) => (
+              <motion.div
+                key={game.id}
+                variants={cardSnap}
+                onClick={() => setSelectedSport(game)}
+                className="group relative bg-white/5 border border-white/10 rounded-sm overflow-hidden hover:border-prakida-flame/50 transition-all duration-500 cursor-pointer"
+              >
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${game.color} opacity-0 group-hover:opacity-10 transition-opacity duration-700`}
+                ></div>
+
+                <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-prakida-flame/10 transition-all duration-500" />
+
+                <div className="p-10 relative z-10 h-full flex flex-col">
+                  <div className="mb-8 flex justify-between items-start">
+                    <div className="p-4 bg-white/5 rounded-sm border border-white/10 group-hover:border-prakida-flame/30 group-hover:bg-prakida-flame/5 transition-all duration-500">
+                      <game.icon className="text-white group-hover:text-prakida-flame transition-colors" size={32} />
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="text-[10px] font-mono text-gray-500 tracking-[0.2em] uppercase">
+                        EVENT #{SPORTS_CONFIG["E-Sports"].categories.find((c) => c.id === game.focusCategoryId)?.eventID}
+                      </span>
+                      <Maximize2 className="text-gray-600 group-hover:text-prakida-flame transition-colors" size={16} />
+                    </div>
+                  </div>
+
+                  <h3 className="text-4xl font-display font-black text-white mb-3 italic tracking-wide group-hover:translate-x-2 transition-transform duration-500 uppercase">
+                    {game.title}
+                  </h3>
+
+                  <p className="text-gray-400 text-sm mb-8 flex-grow leading-relaxed font-light">
+                    {game.desc}
+                  </p>
+
+                  <div className="space-y-6 pt-8 border-t border-white/10 group-hover:border-prakida-flame/20 transition-colors">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 font-mono tracking-widest uppercase">
+                      <Users size={14} className="text-prakida-flame" />
+                      <span>{game.players || "Team"}</span>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <button className="flex-1 bg-white text-black py-4 text-xs font-black uppercase hover:bg-prakida-flame hover:text-white transition-all duration-300 transform group-hover:translate-y-[-2px]">
+                        View Intel
+                      </button>
+                      <Link
+                        to="/register"
+                        onClick={(e) => e.stopPropagation()}
+                        className="px-6 py-4 border border-white/10 text-white hover:bg-white/10 transition-colors"
+                        title="Direct Registration"
+                      >
+                        <ArrowRight size={16} />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
       </div>
 
       <AnimatePresence>

@@ -3,9 +3,16 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SPORTS_CONFIG } from "../../lib/sportsConfig";
 
 const SportDetailsModal = ({ sport, onClose }) => {
     const [currentThumb, setCurrentThumb] = useState(0);
+
+    const sportConfig = sport?.configSport ? SPORTS_CONFIG[sport.configSport] : null;
+    const eventCategories = sportConfig?.categories || [];
+    const focusedCategories = sport?.focusCategoryId
+        ? eventCategories.filter((c) => c.id === sport.focusCategoryId)
+        : eventCategories;
 
     useEffect(() => {
         if (!sport || !sport.images || sport.images.length <= 1) return;
@@ -110,6 +117,13 @@ const SportDetailsModal = ({ sport, onClose }) => {
                             {sport.title}
                         </h2>
 
+                        {focusedCategories.length === 1 && focusedCategories[0]?.eventID && (
+                            <div className="inline-flex items-center gap-2 mb-6 px-3 py-1 bg-white/5 border border-white/10 rounded-sm">
+                                <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400">Event ID</span>
+                                <span className="text-xs md:text-sm font-mono text-white">#{focusedCategories[0].eventID}</span>
+                            </div>
+                        )}
+
                         <div className="space-y-4 md:space-y-6 mb-8 md:mb-10">
                             <p className="text-gray-400 text-sm md:text-lg leading-relaxed font-light">
                                 {sport.detailedDesc || sport.desc}
@@ -125,6 +139,25 @@ const SportDetailsModal = ({ sport, onClose }) => {
                                     <span className="text-xs md:text-base text-white font-bold">{sport.category}</span>
                                 </div>
                             </div>
+
+                            {focusedCategories.length > 0 && (
+                                <div className="p-3 md:p-4 bg-white/5 border border-white/10 rounded-sm">
+                                    <span className="block text-[8px] md:text-[10px] text-gray-500 font-mono tracking-widest uppercase mb-3">
+                                        {focusedCategories.length === 1 ? "Event ID" : "Event IDs"}
+                                    </span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {focusedCategories.map((c) => (
+                                            <span
+                                                key={`${sport.configSport}-${c.id}`}
+                                                className="px-2 py-1 text-[10px] md:text-xs font-mono text-gray-200 bg-black/40 border border-white/10 rounded"
+                                                title={c.label}
+                                            >
+                                                {c.label}: #{c.eventID}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mt-auto md:mt-0 pb-4 md:pb-0">
@@ -132,7 +165,7 @@ const SportDetailsModal = ({ sport, onClose }) => {
                                 to="/register"
                                 className="flex-1 px-6 py-4 bg-prakida-flame text-white font-black text-sm md:text-lg tracking-widest hover:bg-orange-600 transition-all duration-300 transform skew-x-[-12deg] flex items-center justify-center gap-2 group/btn"
                             >
-                                <span className="block skew-x-[12deg] flex items-center gap-2">
+                                <span className="skew-x-[12deg] flex items-center gap-2">
                                     JOIN THE CORPS <ArrowRight size={18} className="group-hover/btn:translate-x-2 transition-transform" />
                                 </span>
                             </Link>

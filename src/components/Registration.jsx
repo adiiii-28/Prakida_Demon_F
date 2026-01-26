@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 import { SPORTS_CONFIG } from "../lib/sportsConfig";
+import { getTicketTypeForEventID } from "../lib/eventRegistrations";
 import { buttonHover, buttonTap, sectionSlide } from "../utils/motion";
 import { Plus, Trash2, Trophy, Users, Shield, Crown } from "lucide-react";
 
@@ -84,7 +85,26 @@ const Registration = () => {
     }
 
     const config = getCurrentConfig();
+    const eventID = config?.eventID;
+    const ticketType = getTicketTypeForEventID(eventID);
     const totalTeamSize = 1 + members.length;
+
+    if (!eventID) {
+      setStatus({
+        type: "error",
+        message: "Invalid event selection. Please re-select sport/category.",
+      });
+      return;
+    }
+
+    if (!ticketType) {
+      setStatus({
+        type: "error",
+        message:
+          "This event is not configured yet. Please contact the organizers.",
+      });
+      return;
+    }
 
     if (totalTeamSize < config.minPlayers) {
       setStatus({
@@ -206,6 +226,7 @@ const Registration = () => {
         user_id: user.id,
         sport: selectedSport,
         category: selectedCategory,
+        eventID,
         team_name: teamName || user.user_metadata?.full_name || "Individual",
         college: college,
         contact_email: contactEmail || user.email,
@@ -242,6 +263,8 @@ const Registration = () => {
         meta_data: {
           registration_id: regData.id,
           team_unique_id: teamUniqueId,
+          eventID,
+          ticket_type: ticketType,
         },
       });
 
