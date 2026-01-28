@@ -5,8 +5,30 @@ const AshOverlay = () => {
   const canvasRef = useRef(null);
   const location = useLocation();
   const particlesRef = useRef([]);
-  const animationFrameRef = useRef();
   const isActiveRef = useRef(false);
+
+  const spawnAsh = (count) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    for (let i = 0; i < count; i++) {
+      particlesRef.current.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height + Math.random() * 100,
+        size: Math.random() * 8 + 2,
+        speedY: Math.random() * 3 + 1,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.1,
+        alpha: 1,
+        color:
+          Math.random() > 0.8
+            ? "#F48C06"
+            : Math.random() > 0.5
+              ? "#333"
+              : "#111",
+      });
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -70,30 +92,7 @@ const AshOverlay = () => {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(timer);
     };
-  }, [location]);
-
-  const spawnAsh = (count) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    for (let i = 0; i < count; i++) {
-      particlesRef.current.push({
-        x: Math.random() * canvas.width,
-        y: canvas.height + Math.random() * 100,
-        size: Math.random() * 8 + 2,
-        speedY: Math.random() * 3 + 1,
-        rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.1,
-        alpha: 1,
-        color:
-          Math.random() > 0.8
-            ? "#F48C06"
-            : Math.random() > 0.5
-              ? "#333"
-              : "#111",
-      });
-    }
-  };
+  }, [location.pathname]);
 
   return (
     <canvas

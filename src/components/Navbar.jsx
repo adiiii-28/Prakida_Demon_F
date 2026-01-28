@@ -25,8 +25,9 @@ const Navbar = () => {
 
 
     useEffect(() => {
-        setIsOpen(false);
-    }, [location]);
+        const timer = setTimeout(() => setIsOpen(false), 0);
+        return () => clearTimeout(timer);
+    }, [location.pathname]);
 
     const navLinks = [
         { name: 'Home', kanji: 'ホーム', path: '/' },
@@ -84,7 +85,7 @@ const Navbar = () => {
                                     onClick={signOut}
                                     className="flex items-center gap-2 px-6 py-2 bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white font-bold transition-all duration-300 rounded-sm skew-x-[-12deg] hover:skew-x-0 hover:shadow-[0_0_15px_rgba(239,68,68,0.5)]"
                                 >
-                                    <span className="block skew-x-[12deg] hover:skew-x-0 flex items-center gap-2 text-sm"><LogOut size={16} /> LOGOUT</span>
+                                    <span className="skew-x-[12deg] hover:skew-x-0 flex items-center gap-2 text-sm"><LogOut size={16} /> LOGOUT</span>
                                 </motion.button>
                             </div>
                         ) : (

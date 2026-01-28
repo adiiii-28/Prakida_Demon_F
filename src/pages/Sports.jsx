@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { sectionSlide, gridStagger, cardSnap } from "../utils/motion";
 import {
@@ -251,7 +251,7 @@ const Sports = () => {
     return qs ? `/register?${qs}` : "/register";
   };
 
-  const refreshRegisteredEvents = async () => {
+  const refreshRegisteredEvents = useCallback(async () => {
     if (!user) {
       setRegisteredEvents([]);
       return;
@@ -284,11 +284,11 @@ const Sports = () => {
     } finally {
       setRegisteredLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     refreshRegisteredEvents();
-  }, [user]);
+  }, [refreshRegisteredEvents]);
 
   const registeredByEventId = useMemo(() => {
     const map = new Map();

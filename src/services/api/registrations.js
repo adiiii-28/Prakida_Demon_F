@@ -19,16 +19,15 @@ export const registrationService = {
     // This is not atomic/perfect but sufficient for client-side validation.
     try {
         const q = query(
-            collection(db, "registrations"),
-            where("sport", "==", sport),
-            where("category", "==", category)
+          collection(db, "registrations"),
+          where("sport", "==", sport),
+          where("category", "==", category)
         );
-        const querySnapshot = await getDocs(q);
-        const existingRegistrations = querySnapshot.docs.map(d => d.data());
+        await getDocs(q);
         
         // We also need to check team_members if possible, but that's a sub-collection or separate collection.
         // Assuming team_members are in a separate collection for now.
-        const memberQ = query(collection(db, "team_members")); // This is too broad for production!
+        // const memberQ = query(collection(db, "team_members")); // This is too broad for production!
         // A better approach for Firestore: store `allowed_emails` array in the registration document for easy querying.
         
         // Let's rely on checking if the LEADER has registered this team? 

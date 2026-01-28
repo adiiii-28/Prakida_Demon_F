@@ -1,5 +1,4 @@
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { useEffect, useState } from "react";
 
 const ScrollPath = () => {
   const { scrollYProgress } = useScroll();
@@ -8,11 +7,6 @@ const ScrollPath = () => {
     damping: 30,
     restDelta: 0.001,
   });
-
-  const width = 40;
-  const height = 600;
-  const amplitude = 15;
-  const frequency = 0.05;
 
   const pathString = `
         M 20 5

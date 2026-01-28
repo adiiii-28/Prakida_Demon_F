@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { SPORTS_CONFIG } from "../lib/sportsConfig";
@@ -40,61 +40,7 @@ const Dashboard = () => {
     return "bg-white/10 text-gray-200 border-white/20";
   };
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!user) return;
-
-      try {
-        console.log("Fetching dashboard data for:", user.email);
-
-        const { ticketService } = await import("../services/api/tickets");
-        const ticketData = await ticketService.getUserTickets(user.uid || user.id);
-        setTickets(ticketData);
-
-        // Backend-powered event registrations
-        await refreshEventRegs();
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchDashboardData();
-
-    const params = new URLSearchParams(window.location.search);
-    const isMockMode = import.meta.env.VITE_TIQR_MOCK_MODE !== "false";
-
-    if (
-      isMockMode &&
-      params.get("mock_payment_success") === "true" &&
-      params.get("uid")
-    ) {
-      const uid = params.get("uid");
-      const confirmPayment = async () => {
-        const { paymentService } = await import("../services/paymentService");
-        const result = await paymentService.verifyMockPayment(uid);
-
-        if (result.success) {
-          console.log("Payment Confirmed! Refreshing...");
-          await fetchDashboardData();
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname,
-          );
-          alert("Payment Successful! Verification complete.");
-        } else {
-          console.warn(result.message);
-          alert("Payment Verification Failed: " + result.message);
-        }
-      };
-      confirmPayment();
-    }
-  }, [user]);
-
-  const refreshEventRegs = async () => {
+  const refreshEventRegs = useCallback(async () => {
     if (!user) {
       setEventRegs([]);
       return;
@@ -126,7 +72,60 @@ const Dashboard = () => {
     } finally {
       setEventRegsRefreshing(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user) return;
+
+      try {
+        console.log("Fetching dashboard data for:", user.email);
+
+        const { ticketService } = await import("../services/api/tickets");
+        const ticketData = await ticketService.getUserTickets(user.uid || user.id);
+        setTickets(ticketData);
+
+        // Backend-powered event registrations
+        await refreshEventRegs();
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+
+    const params = new URLSearchParams(window.location.search);
+    const isMockMode = import.meta.env.VITE_TIQR_MOCK_MODE !== "false";
+
+    if (
+      isMockMode &&
+      params.get("mock_payment_success") === "true" &&
+      params.get("uid")
+    ) {
+      const uid = params.get("uid");
+      const confirmPayment = async () => {
+        const { paymentService } = await import("../services/paymentService");
+        const result = await paymentService.verifyMockPayment(uid);
+
+        if (result.success) {
+          console.log("Payment Confirmed! Refreshing...");
+          await fetchDashboardData();
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
+          );
+          alert("Payment Successful! Verification complete.");
+        } else {
+          console.warn(result.message);
+          alert("Payment Verification Failed: " + result.message);
+        }
+      };
+      confirmPayment();
+    }
+  }, [user, refreshEventRegs]);
 
   const showMockPay = import.meta.env.VITE_TIQR_MOCK_MODE !== "false";
 

@@ -101,7 +101,7 @@ const sportsData = [
   },
 ];
 
-const TiltCard = ({ item, index }) => {
+const TiltCard = ({ item }) => {
   const ref = useRef(null);
   const rectRef = useRef(null);
 
@@ -258,7 +258,7 @@ const HashiraShowcase = ({ limit }) => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {displayedData.map((item, idx) => (
-            <TiltCard key={idx} item={item} index={idx} />
+            <TiltCard key={idx} item={item} />
           ))}
         </motion.div>
 

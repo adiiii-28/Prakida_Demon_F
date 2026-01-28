@@ -57,10 +57,13 @@ const apiFetch = async (path, { method = "GET", body } = {}) => {
 };
 
 export const eventsService = {
-  async bookEvent({ eventId, type, name, phone, college, members }) {
+  async bookEvent({ eventId, type, members, name, phone, college, role, gender, teamName }) {
     const body = {
       eventId,
       type,
+      role,
+      gender,
+      teamName,
       name,
       phone,
       college,

@@ -7,7 +7,6 @@ import {
   query,
   where,
   getDocs,
-  limit,
 } from "firebase/firestore";
 
 const parseCreatedAtMs = (value) => {

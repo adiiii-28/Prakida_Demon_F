@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -6,6 +6,24 @@ import { useAuth } from "../context/AuthContext";
 import { SPORTS_CONFIG } from "../lib/sportsConfig";
 import { buttonHover, buttonTap, sectionSlide } from "../utils/motion";
 import { Plus, Trash2, Trophy, Users, Shield, Crown } from "lucide-react";
+
+const getSelectionFromQuery = (search) => {
+  const params = new URLSearchParams(search);
+  const sportParam = params.get("sport");
+  const categoryParam = params.get("category");
+
+  const fallbackSport = Object.keys(SPORTS_CONFIG)[0];
+  const initialSport =
+    sportParam && SPORTS_CONFIG[sportParam] ? sportParam : fallbackSport;
+
+  const categories = SPORTS_CONFIG[initialSport]?.categories || [];
+  const initialCategory =
+    categoryParam && categories.some((c) => c.id === categoryParam)
+      ? categoryParam
+      : categories[0]?.id;
+
+  return { initialSport, initialCategory };
+};
 
 const Registration = () => {
   const { user } = useAuth();
@@ -15,24 +33,7 @@ const Registration = () => {
   const submitLockRef = useRef(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
-  const getInitialSelectionFromQuery = () => {
-    const params = new URLSearchParams(location.search);
-    const sportParam = params.get("sport");
-    const categoryParam = params.get("category");
-
-    const fallbackSport = Object.keys(SPORTS_CONFIG)[0];
-    const initialSport = sportParam && SPORTS_CONFIG[sportParam] ? sportParam : fallbackSport;
-
-    const categories = SPORTS_CONFIG[initialSport]?.categories || [];
-    const initialCategory =
-      categoryParam && categories.some((c) => c.id === categoryParam)
-        ? categoryParam
-        : categories[0]?.id;
-
-    return { initialSport, initialCategory };
-  };
-
-  const { initialSport, initialCategory } = getInitialSelectionFromQuery();
+  const { initialSport, initialCategory } = getSelectionFromQuery(location.search);
 
   const [selectedSport, setSelectedSport] = useState(initialSport);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -50,17 +51,18 @@ const Registration = () => {
   const [contactEmail, setContactEmail] = useState(user?.email || "");
   const [contactPhone, setContactPhone] = useState("");
 
+  const [gender, setGender] = useState("");
+
   const [members, setMembers] = useState([]);
 
-  const getCurrentConfig = () => {
-    return SPORTS_CONFIG[selectedSport].categories.find(
-      (c) => c.id === selectedCategory,
-    );
-  };
+  const currentConfig = useMemo(() => {
+    const sport = SPORTS_CONFIG[selectedSport];
+    return sport?.categories?.find((c) => c.id === selectedCategory);
+  }, [selectedSport, selectedCategory]);
 
   useEffect(() => {
     const { initialSport: sportFromQuery, initialCategory: categoryFromQuery } =
-      getInitialSelectionFromQuery();
+      getSelectionFromQuery(location.search);
 
     // If user navigates to /register with query params, reflect them.
     setSelectedSport(sportFromQuery);
@@ -74,10 +76,10 @@ const Registration = () => {
     if (!contactEmail) {
       setContactEmail(user?.email || "");
     }
-  }, [user]);
+  }, [user, contactEmail]);
 
   useEffect(() => {
-    const current = getCurrentConfig();
+    const current = currentConfig;
     if (!current) return;
 
     const allowSolo = current.minPlayers === 1;
@@ -98,18 +100,18 @@ const Registration = () => {
     } else {
       if (userRole === "Player") setUserRole("Captain");
     }
-  }, [selectedSport, selectedCategory]);
+  }, [currentConfig, members.length, registrationMode, userRole]);
 
   useEffect(() => {
-    const config = getCurrentConfig();
+    const config = currentConfig;
     if (!config) return;
 
     const maxAdditional = registrationMode === "group" ? config.maxPlayers - 1 : 0;
 
-    if (members.length > maxAdditional) {
-      setMembers(members.slice(0, maxAdditional));
-    }
-  }, [selectedSport, selectedCategory, registrationMode]);
+    setMembers((prev) =>
+      prev.length > maxAdditional ? prev.slice(0, maxAdditional) : prev,
+    );
+  }, [currentConfig, registrationMode]);
 
   const handleSportChange = (e) => {
     const newSport = e.target.value;
@@ -120,7 +122,7 @@ const Registration = () => {
   };
 
   const canChooseMode = () => {
-    const current = getCurrentConfig();
+    const current = currentConfig;
     if (!current) return false;
     return current.minPlayers === 1 && current.maxPlayers > 1;
   };
@@ -132,7 +134,7 @@ const Registration = () => {
   };
 
   const addMember = () => {
-    const config = getCurrentConfig();
+    const config = currentConfig;
     if (registrationMode !== "group") return;
     const maxAdditional = config.maxPlayers - 1;
 
@@ -160,7 +162,7 @@ const Registration = () => {
       return;
     }
 
-    const config = getCurrentConfig();
+    const config = currentConfig;
     const eventID = config?.eventID;
     const totalTeamSize = 1 + members.length;
     const registrationType = registrationMode;
@@ -228,6 +230,14 @@ const Registration = () => {
       return;
     }
 
+    if (!gender) {
+      setStatus({
+        type: "error",
+        message: "Gender is required.",
+      });
+      return;
+    }
+
     if (!college) {
       setStatus({
         type: "error",
@@ -288,13 +298,6 @@ const Registration = () => {
     try {
       const { eventsService } = await import("../services/api/events");
 
-      const primaryName =
-        (registrationType === "group" ? teamName : "") ||
-        registrantName.trim() ||
-        user?.displayName ||
-        user?.user_metadata?.full_name ||
-        "Registrant";
-
       const primaryMember = {
         name: registrantName.trim(),
         email: contactEmail || user?.email || "",
@@ -318,10 +321,13 @@ const Registration = () => {
       const response = await eventsService.bookEvent({
         eventId: eventID,
         type: registrationType,
-        name: primaryName,
+        name: registrantName.trim(),
         phone: contactPhone,
         college,
         members: memberPayload,
+        role: registrationType === "group" ? userRole : "Player",
+        gender,
+        teamName: registrationType === "group" ? teamName : "",
       });
 
       setStatus({ type: "success", message: "Redirecting to payment..." });
@@ -379,7 +385,7 @@ const Registration = () => {
     );
   }
 
-  const config = getCurrentConfig();
+  const config = currentConfig;
   const totalTeamSize = 1 + members.length;
 
   return (
@@ -532,6 +538,28 @@ const Registration = () => {
                     placeholder="ENTER YOUR FULL NAME"
                     required
                   />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 tracking-wider uppercase">
+                    GENDER (REQUIRED)
+                  </label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-full bg-black/50 border border-white/10 p-3 text-white focus:outline-none focus:border-prakida-flame transition-colors"
+                    required
+                  >
+                    <option value="" className="bg-gray-900">
+                      SELECT GENDER
+                    </option>
+                    <option value="Male" className="bg-gray-900">
+                      Male
+                    </option>
+                    <option value="Female" className="bg-gray-900">
+                      Female
+                    </option>
+                  </select>
                 </div>
 
                 {registrationMode === "group" && (

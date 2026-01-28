@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useAdmin } from "../hooks/useAdmin";
@@ -30,38 +30,7 @@ const AdminDashboard = () => {
 
   const { isAdmin, loading: authLoading } = useAdmin();
 
-  useEffect(() => {
-    if (authLoading) return;
-
-    if (isAdmin) {
-      fetchData();
-    } else {
-      setLoading(false);
-    }
-  }, [isAdmin, authLoading]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const { registrationService } =
-        await import("../services/api/registrations");
-      const { ticketService } = await import("../services/api/tickets");
-
-      const regData = await registrationService.getAllRegistrations();
-
-      const ticketData = await ticketService.getAllTickets();
-
-      setRegistrations(regData || []);
-      setTickets(ticketData || []);
-      calculateStats(regData || [], ticketData || []);
-    } catch (error) {
-      console.error("Admin Fetch Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateStats = (regs, tix) => {
+  const calculateStats = useCallback((regs, tix) => {
     const confirmedRegs = regs.filter((r) => r.payment_status === "confirmed");
     const confirmedTix = tix.filter((t) => t.payment_status === "confirmed");
 
@@ -88,10 +57,39 @@ const AdminDashboard = () => {
       pending: pendingCount,
       confirmed: confirmedCount,
     });
-  };
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { registrationService } =
+        await import("../services/api/registrations");
+      const { ticketService } = await import("../services/api/tickets");
+
+      const regData = await registrationService.getAllRegistrations();
+      const ticketData = await ticketService.getAllTickets();
+
+      setRegistrations(regData || []);
+      setTickets(ticketData || []);
+      calculateStats(regData || [], ticketData || []);
+    } catch (error) {
+      console.error("Admin Fetch Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [calculateStats]);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (isAdmin) {
+      fetchData();
+    } else {
+      setLoading(false);
+    }
+  }, [isAdmin, authLoading, fetchData]);
 
   const handleMarkPaid = async (id, currentStatus, type = "registration") => {
-    const table = type === "registration" ? "registrations" : "tickets";
     const action = currentStatus === "confirmed" ? "REVOKE" : "MARK PAID";
 
     if (!confirm(`Are you sure you want to ${action} this ${type}?`)) return;
