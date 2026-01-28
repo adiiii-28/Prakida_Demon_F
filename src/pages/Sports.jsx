@@ -18,6 +18,7 @@ import {
 import { Link } from "react-router-dom";
 import SportDetailsModal from "../components/ui/SportDetailsModal";
 import { SPORTS_CONFIG } from "../lib/sportsConfig";
+import { summarizeFee, summarizePrizePool } from "../lib/pricing";
 import { useAuth } from "../context/AuthContext";
 
 // Import images
@@ -52,7 +53,7 @@ const SPORTS_DATA = [
     icon: Activity,
     configSport: "Football",
     players: "11 vs 11",
-    category: "Men Only",
+    category: "Men & Women",
     desc: "Passion, precision, and power. 90 minutes of pure adrenaline on the field.",
     detailedDesc: "The beautiful game takes on a fierce intensity in the Arena. Football at Prakida demands stamina, teamwork, and tactical mastery. From lightning-fast wingers to rock-solid defenders, every player must surpass their limits to secure victory in the knockout stages.",
     color: "from-emerald-600 to-teal-900",
@@ -161,6 +162,42 @@ const getPlayersRange = (sportKey, categoryId) => {
   if (!category) return "";
   if (category.minPlayers === category.maxPlayers) return `${category.minPlayers} Players`;
   return `${category.minPlayers}-${category.maxPlayers} Players`;
+};
+
+const getPlayersLabelForSportCard = (sport) => {
+  const configKey = sport?.configSport;
+  const config = configKey ? SPORTS_CONFIG[configKey] : null;
+  const categories = config?.categories || [];
+
+  const scoped = sport?.focusCategoryId
+    ? categories.filter((c) => c.id === sport.focusCategoryId)
+    : categories;
+
+  if (!scoped.length) return sport?.players || "";
+
+  const mins = scoped.map((c) => Number(c.minPlayers)).filter((n) => Number.isFinite(n));
+  const maxs = scoped.map((c) => Number(c.maxPlayers)).filter((n) => Number.isFinite(n));
+  if (!mins.length || !maxs.length) return sport?.players || "";
+
+  const minPlayers = Math.min(...mins);
+  const maxPlayers = Math.max(...maxs);
+  const range =
+    minPlayers === maxPlayers
+      ? `${minPlayers} Players`
+      : `${minPlayers}-${maxPlayers} Players`;
+
+  const perHead = scoped.some((c) => c?.feeUnit === "per_head");
+  return perHead ? `${range} (Per Head)` : range;
+};
+
+const getCategoriesForSportCard = (sport) => {
+  const configKey = sport?.configSport;
+  const config = configKey ? SPORTS_CONFIG[configKey] : null;
+  const categories = config?.categories || [];
+  if (sport?.focusCategoryId) {
+    return categories.filter((c) => c.id === sport.focusCategoryId);
+  }
+  return categories;
 };
 
 const ESPORTS_DATA = [
@@ -396,11 +433,21 @@ const Sports = () => {
         >
           {SPORTS_DATA.map((sport) => {
             const reg = getRegistrationForCard(sport);
+            const categories = getCategoriesForSportCard(sport);
+            const feeSummary = summarizeFee(categories);
+            const prizeSummary = summarizePrizePool(categories);
+            const playersLabel = getPlayersLabelForSportCard(sport);
+            const categoryLabel = getCategoryLabelForSport(sport);
+            const sportForModal = {
+              ...sport,
+              players: playersLabel,
+              category: categoryLabel,
+            };
             return (
               <motion.div
                 key={sport.id}
                 variants={cardSnap}
-                onClick={() => setSelectedSport(sport)}
+                onClick={() => setSelectedSport(sportForModal)}
                 className="group relative bg-white/5 border border-white/10 rounded-sm overflow-hidden hover:border-prakida-flame/50 transition-all duration-500 cursor-pointer"
               >
                 {reg && (
@@ -430,7 +477,7 @@ const Sports = () => {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <span className="text-[10px] font-mono text-gray-500 tracking-[0.2em] uppercase">
-                        {getCategoryLabelForSport(sport)}
+                        {categoryLabel}
                       </span>
                       <Maximize2 className="text-gray-600 group-hover:text-prakida-flame transition-colors" size={16} />
                     </div>
@@ -447,8 +494,29 @@ const Sports = () => {
                   <div className="space-y-6 pt-8 border-t border-white/10 group-hover:border-prakida-flame/20 transition-colors">
                     <div className="flex items-center gap-2 text-xs text-gray-400 font-mono tracking-widest uppercase">
                       <Users size={14} className="text-prakida-flame" />
-                      <span>{sport.players}</span>
+                      <span>{playersLabel}</span>
                     </div>
+
+                    {(feeSummary || prizeSummary) && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 bg-white/5 border border-white/10 rounded-sm">
+                          <span className="block text-[9px] text-gray-500 font-mono tracking-widest uppercase mb-1">
+                            Fee
+                          </span>
+                          <span className="text-sm font-bold text-white">
+                            {feeSummary || "—"}
+                          </span>
+                        </div>
+                        <div className="p-3 bg-white/5 border border-white/10 rounded-sm">
+                          <span className="block text-[9px] text-gray-500 font-mono tracking-widest uppercase mb-1">
+                            Prize Pool
+                          </span>
+                          <span className="text-sm font-bold text-white">
+                            {prizeSummary || "—"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="flex gap-4">
                       <button
@@ -506,6 +574,12 @@ const Sports = () => {
                 <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-prakida-flame/10 transition-all duration-500" />
 
                 <div className="p-10 relative z-10 h-full flex flex-col">
+                  {(() => {
+                    const categories = getCategoriesForSportCard(game);
+                    const feeSummary = summarizeFee(categories);
+                    const prizeSummary = summarizePrizePool(categories);
+                    return (
+                      <>
                   <div className="mb-8 flex justify-between items-start">
                     <div className="p-4 bg-white/5 rounded-sm border border-white/10 group-hover:border-prakida-flame/30 group-hover:bg-prakida-flame/5 transition-all duration-500">
                       <game.icon className="text-white group-hover:text-prakida-flame transition-colors" size={32} />
@@ -532,6 +606,27 @@ const Sports = () => {
                       <span>{game.players || "Team"}</span>
                     </div>
 
+                    {(feeSummary || prizeSummary) && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 bg-white/5 border border-white/10 rounded-sm">
+                          <span className="block text-[9px] text-gray-500 font-mono tracking-widest uppercase mb-1">
+                            Fee
+                          </span>
+                          <span className="text-sm font-bold text-white">
+                            {feeSummary || "—"}
+                          </span>
+                        </div>
+                        <div className="p-3 bg-white/5 border border-white/10 rounded-sm">
+                          <span className="block text-[9px] text-gray-500 font-mono tracking-widest uppercase mb-1">
+                            Prize Pool
+                          </span>
+                          <span className="text-sm font-bold text-white">
+                            {prizeSummary || "—"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex gap-4">
                       <button className="flex-1 bg-white text-black py-4 text-xs font-black uppercase hover:bg-prakida-flame hover:text-white transition-all duration-300 transform group-hover:translate-y-[-2px]">
                         View Intel
@@ -546,6 +641,9 @@ const Sports = () => {
                       </Link>
                     </div>
                   </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </motion.div>
             ))}

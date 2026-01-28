@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 import { SPORTS_CONFIG } from "../lib/sportsConfig";
+import { formatINRWithSymbol, formatRegistrationFee } from "../lib/pricing";
 import { buttonHover, buttonTap, sectionSlide } from "../utils/motion";
 import { Plus, Trash2, Trophy, Users, Shield, Crown } from "lucide-react";
 
@@ -166,6 +167,8 @@ const Registration = () => {
     const eventID = config?.eventID;
     const totalTeamSize = 1 + members.length;
     const registrationType = registrationMode;
+    const leadershipEnabled =
+      registrationType === "group" && Boolean(config?.teamNameRequired);
 
     if (!eventID) {
       setStatus({
@@ -191,7 +194,7 @@ const Registration = () => {
       return;
     }
 
-    if (registrationType === "group") {
+    if (leadershipEnabled) {
       const rosterCaptains = members.filter((m) => m.role === "Captain").length;
       const totalCaptains = (userRole === "Captain" ? 1 : 0) + rosterCaptains;
 
@@ -246,7 +249,7 @@ const Registration = () => {
       return;
     }
 
-    if (registrationType === "group" && !teamName) {
+    if (leadershipEnabled && !teamName) {
       setStatus({
         type: "error",
         message: "Team name is required for team registrations.",
@@ -281,7 +284,7 @@ const Registration = () => {
         }
       }
 
-      if ((m.role === "Captain" || m.role === "Vice-Captain") && !m.contact) {
+      if (leadershipEnabled && (m.role === "Captain" || m.role === "Vice-Captain") && !m.contact) {
         setStatus({
           type: "error",
           message: `${m.role} (${m.name}) must have a phone number.`,
@@ -325,9 +328,9 @@ const Registration = () => {
         phone: contactPhone,
         college,
         members: memberPayload,
-        role: registrationType === "group" ? userRole : "Player",
+        role: leadershipEnabled ? userRole : "Player",
         gender,
-        teamName: registrationType === "group" ? teamName : "",
+        teamName: leadershipEnabled ? teamName : " ",
       });
 
       setStatus({ type: "success", message: "Redirecting to payment..." });
@@ -387,6 +390,8 @@ const Registration = () => {
 
   const config = currentConfig;
   const totalTeamSize = 1 + members.length;
+  const leadershipEnabled =
+    registrationMode === "group" && Boolean(config?.teamNameRequired);
 
   return (
     <section
@@ -475,6 +480,26 @@ const Registration = () => {
                   <p className="text-xs text-prakida-water mt-1">
                     Members Required: {config.minPlayers} - {config.maxPlayers}
                   </p>
+                  {(config?.registrationFee || config?.prizePool) && (
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <div className="bg-black/30 border border-white/10 p-2">
+                        <div className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">
+                          Fee
+                        </div>
+                        <div className="text-sm text-white font-bold">
+                          {formatRegistrationFee(config) || "—"}
+                        </div>
+                      </div>
+                      <div className="bg-black/30 border border-white/10 p-2">
+                        <div className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">
+                          Prize Pool
+                        </div>
+                        <div className="text-sm text-white font-bold">
+                          {formatINRWithSymbol(config?.prizePool) || "—"}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {canChooseMode() && (
@@ -506,7 +531,7 @@ const Registration = () => {
                   </div>
                 )}
 
-                {registrationMode === "group" ? (
+                {leadershipEnabled ? (
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-500 tracking-wider uppercase">
                       YOUR ROLE (LEADERSHIP ONLY)
@@ -562,7 +587,7 @@ const Registration = () => {
                   </select>
                 </div>
 
-                {registrationMode === "group" && (
+                {leadershipEnabled && (
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-500 tracking-wider uppercase">
                       TEAM NAME
@@ -663,7 +688,7 @@ const Registration = () => {
                     <span className="sr-only">Primary participant</span>
                     <span className="truncate">{registrantName || "You"}</span>
                   </div>
-                  {registrationMode === "group" ? (
+                  {leadershipEnabled ? (
                     <div className="bg-black/30 border border-white/10 p-2 text-prakida-flame font-bold text-sm">
                       {userRole.toUpperCase()}
                     </div>
@@ -707,23 +732,29 @@ const Registration = () => {
                         className="bg-black/30 border border-white/10 p-2 text-white text-sm focus:border-prakida-flame focus:outline-none w-full"
                         required
                       />
-                      <select
-                        value={member.role}
-                        onChange={(e) =>
-                          handleMemberChange(index, "role", e.target.value)
-                        }
-                        className="bg-black/30 border border-white/10 p-2 text-white text-sm focus:border-prakida-flame focus:outline-none w-full"
-                      >
-                        <option className="bg-gray-900" value="Player">
-                          Player
-                        </option>
-                        <option className="bg-gray-900" value="Captain">
-                          Captain
-                        </option>
-                        <option className="bg-gray-900" value="Vice-Captain">
-                          Vice-Captain
-                        </option>
-                      </select>
+                      {leadershipEnabled ? (
+                        <select
+                          value={member.role}
+                          onChange={(e) =>
+                            handleMemberChange(index, "role", e.target.value)
+                          }
+                          className="bg-black/30 border border-white/10 p-2 text-white text-sm focus:border-prakida-flame focus:outline-none w-full"
+                        >
+                          <option className="bg-gray-900" value="Player">
+                            Player
+                          </option>
+                          <option className="bg-gray-900" value="Captain">
+                            Captain
+                          </option>
+                          <option className="bg-gray-900" value="Vice-Captain">
+                            Vice-Captain
+                          </option>
+                        </select>
+                      ) : (
+                        <div className="bg-black/30 border border-white/10 p-2 text-prakida-flame font-bold text-sm">
+                          PLAYER
+                        </div>
+                      )}
                       <input
                         type="email"
                         value={member.email}
