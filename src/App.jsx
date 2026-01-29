@@ -29,6 +29,9 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Tickets = lazy(() => import("./pages/Tickets"));
 const Accommodation = lazy(() => import("./pages/Accommodation"));
+const AccommodationRegistration = lazy(
+  () => import("./pages/AccommodationRegistration"),
+);
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -88,6 +91,14 @@ const AnimatedRoutes = () => {
             element={
               <PageTransition>
                 <RegisterSection />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/register/accommodation"
+            element={
+              <PageTransition>
+                <AccommodationRegistration />
               </PageTransition>
             }
           />
@@ -166,7 +177,7 @@ function App() {
           <ScrollPath />
           <div className="bg-prakida-bg min-h-screen text-white overflow-x-hidden selection:bg-prakida-flame selection:text-white cursor-none">
             {" "}
-            { }
+            {}
             <NoiseOverlay />
             <Navbar />
             <main>
