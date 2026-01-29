@@ -294,7 +294,7 @@ const Sports = () => {
     return qs ? `/register?${qs}` : "/register";
   };
 
-  const refreshRegisteredEvents = useCallback(async () => {
+  const refreshRegisteredEvents = useCallback(async ({ refreshStatuses = false } = {}) => {
     if (!user) {
       setRegisteredEvents([]);
       return;
@@ -306,9 +306,20 @@ const Sports = () => {
       const data = await eventsService.getRegisteredEvents();
       const raw = Array.isArray(data?.events) ? data.events : [];
 
-      // Force-refresh statuses so UI updates from pending -> confirmed
+      if (!refreshStatuses) {
+        setRegisteredEvents(raw);
+        setRegisteredRefreshedAt(new Date());
+        return;
+      }
+
+      const shouldRefreshStatus = (e) => {
+        const s = String(e?.status || "").toLowerCase();
+        return !s || s.includes("pending");
+      };
+
       const refreshed = await Promise.all(
         raw.map(async (e) => {
+          if (!shouldRefreshStatus(e)) return e;
           try {
             const statusRes = await eventsService.getEventStatus(e.eventId);
             return { ...e, ...statusRes };
@@ -330,7 +341,8 @@ const Sports = () => {
   }, [user]);
 
   useEffect(() => {
-    refreshRegisteredEvents();
+    // Lightweight refresh on page load: no per-event status calls.
+    refreshRegisteredEvents({ refreshStatuses: false });
   }, [refreshRegisteredEvents]);
 
   const registeredByEventId = useMemo(() => {
@@ -399,7 +411,7 @@ const Sports = () => {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               type="button"
-              onClick={refreshRegisteredEvents}
+              onClick={() => refreshRegisteredEvents({ refreshStatuses: true })}
               disabled={!user || registeredLoading}
               className="inline-flex items-center gap-2 px-5 py-2 border border-white/15 bg-white/5 text-white font-bold text-xs tracking-widest uppercase hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
               title={

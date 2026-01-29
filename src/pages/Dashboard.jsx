@@ -40,7 +40,7 @@ const Dashboard = () => {
     return "bg-white/10 text-gray-200 border-white/20";
   };
 
-  const refreshEventRegs = useCallback(async () => {
+  const refreshEventRegs = useCallback(async ({ refreshStatuses = false } = {}) => {
     if (!user) {
       setEventRegs([]);
       return;
@@ -52,8 +52,21 @@ const Dashboard = () => {
       const regList = await eventsService.getRegisteredEvents();
       const rawEvents = Array.isArray(regList?.events) ? regList.events : [];
 
+      if (!refreshStatuses) {
+        setEventRegs(rawEvents);
+        setEventRegsRefreshedAt(new Date());
+        return;
+      }
+
+      const shouldRefreshStatus = (e) => {
+        const s = String(e?.status || "").toLowerCase();
+        // Only refresh when we have no status yet or the payment is still pending.
+        return !s || s.includes("pending");
+      };
+
       const refreshed = await Promise.all(
         rawEvents.map(async (e) => {
+          if (!shouldRefreshStatus(e)) return e;
           try {
             const statusRes = await eventsService.getEventStatus(e.eventId);
             return { ...e, ...statusRes };
@@ -86,7 +99,8 @@ const Dashboard = () => {
         setTickets(ticketData);
 
         // Backend-powered event registrations
-        await refreshEventRegs();
+        // Lightweight refresh on page load: no per-event status calls.
+        await refreshEventRegs({ refreshStatuses: false });
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
@@ -203,7 +217,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-center gap-3 mb-8">
             <button
               type="button"
-              onClick={refreshEventRegs}
+              onClick={() => refreshEventRegs({ refreshStatuses: true })}
               disabled={eventRegsRefreshing}
               className="inline-flex items-center gap-2 px-6 py-3 border border-white/15 bg-white/5 text-white font-bold text-xs tracking-widest uppercase hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
               title={eventRegsRefreshing ? "Refreshing..." : "Refresh registration status"}
