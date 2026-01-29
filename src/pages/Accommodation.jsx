@@ -8,6 +8,7 @@ import {
   Bus,
   ArrowRight,
 } from "lucide-react";
+import { SiGooglemaps } from "react-icons/si";
 import { Link } from "react-router-dom";
 
 const Accommodation = () => {
@@ -136,9 +137,17 @@ const Accommodation = () => {
               {/* Placeholder for map - using an image or just a cool div */}
               <div className="absolute inset-0 bg-[url('/grid-pattern.png')] opacity-20"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <p className="text-gray-500 font-mono text-sm">
-                  [ MAP MODULE OFFLINE ]
-                </p>
+                <iframe
+                  src="https://maps.google.com/maps?q=BIT%20Mesra%20Patna&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  className="filter grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 delay-100 ease-out"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="BIT Patna Location"
+                ></iframe>
               </div>
             </div>
             <p className="text-gray-400 text-sm">
