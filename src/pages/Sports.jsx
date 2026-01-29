@@ -18,7 +18,7 @@ import {
 import { Link } from "react-router-dom";
 import SportDetailsModal from "../components/ui/SportDetailsModal";
 import { SPORTS_CONFIG } from "../lib/sportsConfig";
-import { summarizeFee, summarizePrizePool } from "../lib/pricing";
+import { summarizeFee } from "../lib/pricing";
 import { useAuth } from "../context/AuthContext";
 
 // Import images
@@ -443,54 +443,6 @@ const Sports = () => {
           </div>
         </motion.div>
 
-        <div className="mb-12 max-w-5xl mx-auto bg-white/5 border border-white/10 p-8 md:p-10 rounded-sm">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-2 text-center">
-            PRIZE POOL BREAKDOWN
-          </h2>
-          <p className="text-center text-gray-400 font-mono text-xs md:text-sm tracking-widest uppercase mb-8">
-            1st position (boys & girls categories)
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2 text-gray-200">
-            <div className="space-y-2">
-              <div>Cricket (M) — ₹15,000</div>
-              <div>Cricket (F) — ₹12,000</div>
-              <div>Football (M) — ₹15,000</div>
-              <div>Football (F) — ₹12,000</div>
-              <div>Basketball (M) — ₹9,000</div>
-              <div>Basketball (F) — ₹9,000</div>
-              <div>Volleyball (M) — ₹9,000</div>
-              <div>Volleyball (F) — ₹9,000</div>
-              <div>Badminton (M) — ₹6,000</div>
-              <div>Badminton (F) — ₹6,000</div>
-              <div>Lawn Tennis (M) — ₹5,000</div>
-              <div>Lawn Tennis (F) — ₹5,000</div>
-              <div>Lawn Tennis Singles (M) — ₹2,000</div>
-              <div>Lawn Tennis Singles (F) — ₹2,000</div>
-              <div>Chess — ₹5,000</div>
-            </div>
-
-            <div className="space-y-2">
-              <div>Carrom (M) — ₹1,500</div>
-              <div>Carrom (F) — ₹1,500</div>
-              <div>Carrom (Mix) — ₹1,000</div>
-              <div>Table Tennis (M) — ₹4,000</div>
-              <div>Table Tennis (F) — ₹4,000</div>
-              <div>Table Tennis Singles (M) — ₹2,000</div>
-              <div>Table Tennis Singles (F) — ₹2,000</div>
-              <div>Table Tennis (Mix) — ₹3,000</div>
-              <div>Esports (BGMI) — ₹8,000</div>
-              <div>Esports (Valorant / Free Fire) — ₹6,000</div>
-              <div>Esports (Real Cricket) — ₹6,000</div>
-              <div>Marathon (M) — ₹5,000</div>
-              <div>Marathon (F) — ₹5,000</div>
-              <div className="pt-3 mt-3 border-t border-white/10 font-bold text-white">
-                TOTAL — ₹170,000
-              </div>
-            </div>
-          </div>
-        </div>
-
         <motion.div
           variants={gridStagger}
           initial="hidden"
@@ -501,7 +453,6 @@ const Sports = () => {
             const reg = getRegistrationForCard(sport);
             const categories = getCategoriesForSportCard(sport);
             const feeSummary = summarizeFee(categories);
-            const prizeSummary = summarizePrizePool(categories);
             const playersLabel = getPlayersLabelForSportCard(sport);
             const categoryLabel = getCategoryLabelForSport(sport);
             const sportForModal = {
@@ -563,22 +514,14 @@ const Sports = () => {
                       <span>{playersLabel}</span>
                     </div>
 
-                    {(feeSummary || prizeSummary) && (
-                      <div className="grid grid-cols-2 gap-3">
+                    {feeSummary && (
+                      <div className="grid grid-cols-1 gap-3">
                         <div className="p-3 bg-white/5 border border-white/10 rounded-sm">
                           <span className="block text-[9px] text-gray-500 font-mono tracking-widest uppercase mb-1">
                             Fee
                           </span>
                           <span className="text-sm font-bold text-white">
-                            {feeSummary || "—"}
-                          </span>
-                        </div>
-                        <div className="p-3 bg-white/5 border border-white/10 rounded-sm">
-                          <span className="block text-[9px] text-gray-500 font-mono tracking-widest uppercase mb-1">
-                            Prize Pool
-                          </span>
-                          <span className="text-sm font-bold text-white">
-                            {prizeSummary || "—"}
+                            {feeSummary}
                           </span>
                         </div>
                       </div>
@@ -643,7 +586,6 @@ const Sports = () => {
                   {(() => {
                     const categories = getCategoriesForSportCard(game);
                     const feeSummary = summarizeFee(categories);
-                    const prizeSummary = summarizePrizePool(categories);
                     return (
                       <>
                   <div className="mb-8 flex justify-between items-start">
@@ -672,22 +614,14 @@ const Sports = () => {
                       <span>{game.players || "Team"}</span>
                     </div>
 
-                    {(feeSummary || prizeSummary) && (
-                      <div className="grid grid-cols-2 gap-3">
+                    {feeSummary && (
+                      <div className="grid grid-cols-1 gap-3">
                         <div className="p-3 bg-white/5 border border-white/10 rounded-sm">
                           <span className="block text-[9px] text-gray-500 font-mono tracking-widest uppercase mb-1">
                             Fee
                           </span>
                           <span className="text-sm font-bold text-white">
-                            {feeSummary || "—"}
-                          </span>
-                        </div>
-                        <div className="p-3 bg-white/5 border border-white/10 rounded-sm">
-                          <span className="block text-[9px] text-gray-500 font-mono tracking-widest uppercase mb-1">
-                            Prize Pool
-                          </span>
-                          <span className="text-sm font-bold text-white">
-                            {prizeSummary || "—"}
+                            {feeSummary}
                           </span>
                         </div>
                       </div>
