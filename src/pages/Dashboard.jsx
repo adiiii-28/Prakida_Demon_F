@@ -24,7 +24,8 @@ const Dashboard = () => {
 
   const [accommodationBookings, setAccommodationBookings] = useState([]);
   const [accommodationRefreshing, setAccommodationRefreshing] = useState(false);
-  const [accommodationRefreshedAt, setAccommodationRefreshedAt] = useState(null);
+  const [accommodationRefreshedAt, setAccommodationRefreshedAt] =
+    useState(null);
   const [accommodationError, setAccommodationError] = useState("");
 
   const resolveEventLabel = (eventId) => {
@@ -43,60 +44,66 @@ const Dashboard = () => {
 
   const getStatusPillClass = (status) => {
     const s = String(status || "").toLowerCase();
-    if (s === "confirmed") return "bg-green-900/30 text-green-400 border-green-500/30";
-    if (s.includes("pending")) return "bg-yellow-900/30 text-yellow-400 border-yellow-500/30";
+    if (s === "confirmed")
+      return "bg-green-900/30 text-green-400 border-green-500/30";
+    if (s.includes("pending"))
+      return "bg-yellow-900/30 text-yellow-400 border-yellow-500/30";
     if (s.includes("failed") || s.includes("cancel"))
       return "bg-red-900/30 text-red-400 border-red-500/30";
-    if (s === "not_registered") return "bg-white/10 text-gray-400 border-white/20";
+    if (s === "not_registered")
+      return "bg-white/10 text-gray-400 border-white/20";
     return "bg-white/10 text-gray-200 border-white/20";
   };
 
-  const refreshEventRegs = useCallback(async ({ refreshStatuses = false } = {}) => {
-    if (!user) {
-      setEventRegs([]);
-      return;
-    }
-
-    setEventRegsRefreshing(true);
-    try {
-      const { eventsService } = await import("../services/api/events");
-      const regList = await eventsService.getRegisteredEvents();
-      const rawEvents = Array.isArray(regList?.events) ? regList.events : [];
-
-      if (!refreshStatuses) {
-        setEventRegs(rawEvents);
-        setEventRegsRefreshedAt(new Date());
+  const refreshEventRegs = useCallback(
+    async ({ refreshStatuses = false } = {}) => {
+      if (!user) {
+        setEventRegs([]);
         return;
       }
 
-      const shouldRefreshStatus = (e) => {
-        const s = String(e?.status || "").toLowerCase();
-        // Only refresh when we have no status yet or the payment is still pending.
-        return !s || s.includes("pending");
-      };
+      setEventRegsRefreshing(true);
+      try {
+        const { eventsService } = await import("../services/api/events");
+        const regList = await eventsService.getRegisteredEvents();
+        const rawEvents = Array.isArray(regList?.events) ? regList.events : [];
 
-      const refreshed = await Promise.all(
-        rawEvents.map(async (e) => {
-          if (!shouldRefreshStatus(e)) return e;
-          try {
-            const statusRes = await eventsService.getEventStatus(e.eventId);
-            return { ...e, ...statusRes };
-          } catch {
-            return e;
-          }
-        }),
-      );
+        if (!refreshStatuses) {
+          setEventRegs(rawEvents);
+          setEventRegsRefreshedAt(new Date());
+          return;
+        }
 
-      setEventRegs(refreshed);
-      setEventRegsRefreshedAt(new Date());
-    } catch (err) {
-      console.error("Error refreshing event registrations:", err);
-      setEventRegs([]);
-      setEventRegsRefreshedAt(new Date());
-    } finally {
-      setEventRegsRefreshing(false);
-    }
-  }, [user]);
+        const shouldRefreshStatus = (e) => {
+          const s = String(e?.status || "").toLowerCase();
+          // Only refresh when we have no status yet or the payment is still pending.
+          return !s || s.includes("pending");
+        };
+
+        const refreshed = await Promise.all(
+          rawEvents.map(async (e) => {
+            if (!shouldRefreshStatus(e)) return e;
+            try {
+              const statusRes = await eventsService.getEventStatus(e.eventId);
+              return { ...e, ...statusRes };
+            } catch {
+              return e;
+            }
+          }),
+        );
+
+        setEventRegs(refreshed);
+        setEventRegsRefreshedAt(new Date());
+      } catch (err) {
+        console.error("Error refreshing event registrations:", err);
+        setEventRegs([]);
+        setEventRegsRefreshedAt(new Date());
+      } finally {
+        setEventRegsRefreshing(false);
+      }
+    },
+    [user],
+  );
 
   const refreshAlumniStatus = useCallback(async () => {
     if (!user) {
@@ -146,61 +153,67 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  const refreshAccommodation = useCallback(async ({ refreshStatuses = false } = {}) => {
-    if (!user) {
-      setAccommodationBookings([]);
-      setAccommodationError("");
-      setAccommodationRefreshedAt(null);
-      return;
-    }
-
-    setAccommodationRefreshing(true);
-    setAccommodationError("");
-
-    try {
-      const { accommodationService } = await import("../services/api/accommodation");
-      const res = await accommodationService.getAll();
-      const raw = Array.isArray(res?.bookings) ? res.bookings : [];
-
-      if (!refreshStatuses) {
-        setAccommodationBookings(raw);
-        setAccommodationRefreshedAt(new Date());
+  const refreshAccommodation = useCallback(
+    async ({ refreshStatuses = false } = {}) => {
+      if (!user) {
+        setAccommodationBookings([]);
+        setAccommodationError("");
+        setAccommodationRefreshedAt(null);
         return;
       }
 
-      const shouldRefreshStatus = (b) => {
-        const s = String(b?.paymentStatus || b?.status || "").toLowerCase();
-        return !s || s.includes("pending");
-      };
+      setAccommodationRefreshing(true);
+      setAccommodationError("");
 
-      const refreshed = await Promise.all(
-        raw.map(async (b) => {
-          if (!shouldRefreshStatus(b)) return b;
-          try {
-            const order = await accommodationService.getOrder(b?.id);
-            return {
-              ...b,
-              paymentStatus: order?.status || b?.paymentStatus,
-              paymentUrl: order?.paymentUrl || b?.paymentUrl,
-              details: order?.details || b?.details,
-            };
-          } catch {
-            return b;
-          }
-        }),
-      );
+      try {
+        const { accommodationService } =
+          await import("../services/api/accommodation");
+        const res = await accommodationService.getAll();
+        const raw = Array.isArray(res?.bookings) ? res.bookings : [];
 
-      setAccommodationBookings(refreshed);
-      setAccommodationRefreshedAt(new Date());
-    } catch (err) {
-      console.error("Error refreshing accommodation bookings:", err);
-      setAccommodationError(err?.message || "Failed to fetch accommodation bookings.");
-      setAccommodationBookings([]);
-      setAccommodationRefreshedAt(new Date());
-    } finally {
-      setAccommodationRefreshing(false);
-    }
-  }, [user]);
+        if (!refreshStatuses) {
+          setAccommodationBookings(raw);
+          setAccommodationRefreshedAt(new Date());
+          return;
+        }
+
+        const shouldRefreshStatus = (b) => {
+          const s = String(b?.paymentStatus || b?.status || "").toLowerCase();
+          return !s || s.includes("pending");
+        };
+
+        const refreshed = await Promise.all(
+          raw.map(async (b) => {
+            if (!shouldRefreshStatus(b)) return b;
+            try {
+              const order = await accommodationService.getOrder(b?.id);
+              return {
+                ...b,
+                paymentStatus: order?.status || b?.paymentStatus,
+                paymentUrl: order?.paymentUrl || b?.paymentUrl,
+                details: order?.details || b?.details,
+              };
+            } catch {
+              return b;
+            }
+          }),
+        );
+
+        setAccommodationBookings(refreshed);
+        setAccommodationRefreshedAt(new Date());
+      } catch (err) {
+        console.error("Error refreshing accommodation bookings:", err);
+        setAccommodationError(
+          err?.message || "Failed to fetch accommodation bookings.",
+        );
+        setAccommodationBookings([]);
+        setAccommodationRefreshedAt(new Date());
+      } finally {
+        setAccommodationRefreshing(false);
+      }
+    },
+    [user],
+  );
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -210,7 +223,9 @@ const Dashboard = () => {
         console.log("Fetching dashboard data for:", user.email);
 
         const { ticketService } = await import("../services/api/tickets");
-        const ticketData = await ticketService.getUserTickets(user.uid || user.id);
+        const ticketData = await ticketService.getUserTickets(
+          user.uid || user.id,
+        );
         setTickets(ticketData);
 
         // Backend-powered event registrations
@@ -276,6 +291,7 @@ const Dashboard = () => {
         </p>
         <div className="flex gap-4">
           <motion.button
+            initial={{ skewX: -12 }}
             whileHover={buttonHover}
             whileTap={buttonTap}
             onClick={() => navigate("/login")}
@@ -284,6 +300,7 @@ const Dashboard = () => {
             <span className="skew-x-[12deg] block">LOGIN</span>
           </motion.button>
           <motion.button
+            initial={{ skewX: -12 }}
             whileHover={buttonHover}
             whileTap={buttonTap}
             onClick={() => navigate("/signup")}
@@ -320,8 +337,13 @@ const Dashboard = () => {
             <div>
               <h1 className="text-3xl md:text-4xl font-display font-bold text-white uppercase">
                 Welcome,{" "}
-                {(user.displayName || user.user_metadata?.full_name || "Slayer")
-                  .split(" ")[0]}
+                {
+                  (
+                    user.displayName ||
+                    user.user_metadata?.full_name ||
+                    "Slayer"
+                  ).split(" ")[0]
+                }
               </h1>
               <p className="text-gray-400 mt-1 font-mono text-sm tracking-wide">
                 {user.email}
@@ -341,9 +363,16 @@ const Dashboard = () => {
               onClick={() => refreshEventRegs({ refreshStatuses: true })}
               disabled={eventRegsRefreshing}
               className="inline-flex items-center gap-2 px-6 py-3 border border-white/15 bg-white/5 text-white font-bold text-xs tracking-widest uppercase hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              title={eventRegsRefreshing ? "Refreshing..." : "Refresh registration status"}
+              title={
+                eventRegsRefreshing
+                  ? "Refreshing..."
+                  : "Refresh registration status"
+              }
             >
-              <RefreshCw size={16} className={eventRegsRefreshing ? "animate-spin" : ""} />
+              <RefreshCw
+                size={16}
+                className={eventRegsRefreshing ? "animate-spin" : ""}
+              />
               {eventRegsRefreshing ? "Refreshing" : "Refresh Status"}
             </button>
 
@@ -397,8 +426,9 @@ const Dashboard = () => {
                           {String(e?.status || "registered").replace(/_/g, " ")}
                         </span>
 
-                        {String(e?.status || "").toLowerCase().includes("pending") &&
-                        e?.paymentUrl ? (
+                        {String(e?.status || "")
+                          .toLowerCase()
+                          .includes("pending") && e?.paymentUrl ? (
                           <a
                             href={e.paymentUrl}
                             target="_blank"
@@ -444,9 +474,16 @@ const Dashboard = () => {
               onClick={refreshAlumniStatus}
               disabled={alumniRefreshing}
               className="inline-flex items-center gap-2 px-6 py-3 border border-white/15 bg-white/5 text-white font-bold text-xs tracking-widest uppercase hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              title={alumniRefreshing ? "Refreshing..." : "Refresh alumni registration status"}
+              title={
+                alumniRefreshing
+                  ? "Refreshing..."
+                  : "Refresh alumni registration status"
+              }
             >
-              <RefreshCw size={16} className={alumniRefreshing ? "animate-spin" : ""} />
+              <RefreshCw
+                size={16}
+                className={alumniRefreshing ? "animate-spin" : ""}
+              />
               {alumniRefreshing ? "Refreshing" : "Refresh Status"}
             </button>
 
@@ -461,7 +498,9 @@ const Dashboard = () => {
             {alumniError ? (
               <p className="text-red-400 font-mono text-sm">{alumniError}</p>
             ) : alumniStatus == null ? (
-              <p className="text-gray-400 font-mono text-sm">Checking alumni status...</p>
+              <p className="text-gray-400 font-mono text-sm">
+                Checking alumni status...
+              </p>
             ) : (
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <div className="text-center md:text-left">
@@ -484,8 +523,7 @@ const Dashboard = () => {
 
                   {String(alumniStatus || "")
                     .toLowerCase()
-                    .includes("pending") &&
-                  alumniDetails?.paymentUrl ? (
+                    .includes("pending") && alumniDetails?.paymentUrl ? (
                     <a
                       href={alumniDetails.paymentUrl}
                       target="_blank"
@@ -519,9 +557,16 @@ const Dashboard = () => {
               onClick={() => refreshAccommodation({ refreshStatuses: true })}
               disabled={accommodationRefreshing}
               className="inline-flex items-center gap-2 px-6 py-3 border border-white/15 bg-white/5 text-white font-bold text-xs tracking-widest uppercase hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              title={accommodationRefreshing ? "Refreshing..." : "Refresh accommodation status"}
+              title={
+                accommodationRefreshing
+                  ? "Refreshing..."
+                  : "Refresh accommodation status"
+              }
             >
-              <RefreshCw size={16} className={accommodationRefreshing ? "animate-spin" : ""} />
+              <RefreshCw
+                size={16}
+                className={accommodationRefreshing ? "animate-spin" : ""}
+              />
               {accommodationRefreshing ? "Refreshing" : "Refresh Status"}
             </button>
 
@@ -534,11 +579,15 @@ const Dashboard = () => {
 
           {accommodationError ? (
             <div className="max-w-4xl mx-auto bg-white/5 border border-red-500/30 p-8 md:p-10 rounded-sm">
-              <p className="text-red-400 font-mono text-sm">{accommodationError}</p>
+              <p className="text-red-400 font-mono text-sm">
+                {accommodationError}
+              </p>
             </div>
           ) : accommodationBookings.length === 0 ? (
             <div className="bg-white/5 border border-white/10 p-10 text-center rounded-sm max-w-4xl mx-auto">
-              <p className="text-gray-400 mb-5">No accommodation bookings found.</p>
+              <p className="text-gray-400 mb-5">
+                No accommodation bookings found.
+              </p>
               <Link
                 to="/register/accommodation"
                 className="inline-block px-8 py-3 bg-prakida-flame text-white font-bold skew-x-[-12deg]"
@@ -551,13 +600,19 @@ const Dashboard = () => {
               {accommodationBookings
                 .slice()
                 .sort((a, b) => {
-                  const aMs = a?.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0;
-                  const bMs = b?.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0;
+                  const aMs = a?.createdAt?.seconds
+                    ? a.createdAt.seconds * 1000
+                    : 0;
+                  const bMs = b?.createdAt?.seconds
+                    ? b.createdAt.seconds * 1000
+                    : 0;
                   return bMs - aMs;
                 })
                 .map((b) => {
                   const status = b?.paymentStatus || b?.status || "unknown";
-                  const membersCount = Array.isArray(b?.members) ? b.members.length : 0;
+                  const membersCount = Array.isArray(b?.members)
+                    ? b.members.length
+                    : 0;
                   return (
                     <motion.div
                       key={String(b?.id || b?.groupId || Math.random())}
@@ -571,10 +626,14 @@ const Dashboard = () => {
                             {b?.teamName || "Accommodation Booking"}
                           </h3>
                           <p className="text-sm text-gray-400 font-mono tracking-widest uppercase">
-                            {(b?.college || "—").toString()} • {membersCount} member{membersCount === 1 ? "" : "s"}
+                            {(b?.college || "—").toString()} • {membersCount}{" "}
+                            member{membersCount === 1 ? "" : "s"}
                           </p>
                           <p className="text-xs text-gray-500 font-mono mt-2">
-                            Booking ID: <span className="text-gray-300">{String(b?.id || "—")}</span>
+                            Booking ID:{" "}
+                            <span className="text-gray-300">
+                              {String(b?.id || "—")}
+                            </span>
                           </p>
                         </div>
 
@@ -587,7 +646,9 @@ const Dashboard = () => {
                             {String(status).replace(/_/g, " ")}
                           </span>
 
-                          {String(status || "").toLowerCase().includes("pending") && b?.paymentUrl ? (
+                          {String(status || "")
+                            .toLowerCase()
+                            .includes("pending") && b?.paymentUrl ? (
                             <a
                               href={b.paymentUrl}
                               target="_blank"

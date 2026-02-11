@@ -69,6 +69,7 @@ export const cardHover = {
 };
 
 export const buttonHover = {
+  skewX: 0,
   scale: 1.08,
   boxShadow: "0px 0px 20px rgba(244,140,6,0.6)",
   transition: { type: "spring", stiffness: 400, damping: 10 },

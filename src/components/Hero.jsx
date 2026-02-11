@@ -72,7 +72,7 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 perspective-1000">
-      { }
+      {}
       <div className="absolute inset-0 z-0 bg-black">
         <AnimatePresence mode="popLayout">
           <motion.div
@@ -91,7 +91,7 @@ const Hero = () => {
           </motion.div>
         </AnimatePresence>
 
-        { }
+        {}
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-prakida-bg z-10" />
         <div className="absolute inset-0 z-10 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay" />
       </div>
@@ -116,10 +116,10 @@ const Hero = () => {
                 animate="visible"
               >
                 <h1
-                  className="text-5xl md:text-9xl lg:text-[10rem] font-display font-black text-white tracking-tighter leading-[0.8]"
+                  className="hero-font text-5xl md:text-9xl lg:text-[10rem] font-display font-black tracking-wide leading-[0.8] text-transparent bg-clip-text
+           bg-[linear-gradient(to_top,#4a0000_0%,#b30000_20%,#ff2a00_40%,#ff7a00_60%,#ffd200_80%,#ffffff_100%)]"
                   style={{
                     textShadow: "0 0 40px rgba(255,255,255,0.1)",
-                    fontFamily: "'Nosifer', cursive",
                   }}
                 >
                   PRAKRIDA
@@ -174,7 +174,7 @@ const Hero = () => {
             </motion.div>
           </motion.div>
 
-          { }
+          {}
           <motion.div
             variants={itemVariants}
             className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-12 max-w-4xl mx-auto border-t border-white/20 pt-10"
